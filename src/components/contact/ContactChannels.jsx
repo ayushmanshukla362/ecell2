@@ -3,9 +3,9 @@ import { AiOutlineInstagram, AiOutlineMail, AiOutlineWhatsApp, AiOutlineYoutube 
 
 const channels = [
   ['Email', 'ecell@abes.ac.in', 'mailto:ecell@abes.ac.in', AiOutlineMail],
-  ['Instagram', '@ecell_absec', 'https://www.instagram.com/ecell_abesec', AiOutlineInstagram],
+  ['Instagram', '@ecell_abesec', 'https://www.instagram.com/ecell_abesec/', AiOutlineInstagram],
   ['WhatsApp', 'Join on WhatsApp', 'https://whatsapp.com/channel/0029VaEzRcf84Om7lps30D2F', AiOutlineWhatsApp],
-  ['YouTube', 'E-Cell ABSEC', 'https://www.youtube.com/@E-CELL_ABESEC', AiOutlineYoutube],
+  ['YouTube', 'E-Cell ABESEC', 'https://www.youtube.com/@E-CELL_ABESEC', AiOutlineYoutube],
 ]
 
 function ContactChannels() {

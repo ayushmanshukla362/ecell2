@@ -21,11 +21,11 @@ function Footer() {
           <span className="footer-label">Say hello</span>
           <a href="mailto:ecell@abes.ac.in">ecell@abes.ac.in <ArrowUpRight size={15} aria-hidden="true" /></a>
           <a href="https://www.instagram.com/ecell_abesec/" target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={15} aria-hidden="true" /></a>
-          <a href="https://www.linkedin.com/company/ecell-abes-ec/mycompany/" target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={15} aria-hidden="true" /></a>
+          <a href="https://www.linkedin.com/company/ecell-abes-ec/" target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
       </div>
       <div className="site-footer__bottom site-section">
-        <span>© 2025 E-Cell ABESEC</span>
+        <span>© {new Date().getFullYear()} E-Cell ABESEC</span>
         <span>From ideas to imprint <span className="footer-dot" /></span>
       </div>
     </footer>

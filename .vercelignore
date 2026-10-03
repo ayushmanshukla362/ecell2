@@ -1,0 +1,62 @@
+# Deployment source exclusions; tests and documentation still belong in Git.
+# Keep app source, scripts/build.mjs, scripts/export-content.mjs, the seed,
+# src/assets and the fallback image: npm run build needs them.
+
+# Never upload local hosting plans, environment files, keys or runtime data.
+.local-deploy/
+.vercel/
+.env
+.env.*
+backend/data/
+backups/
+*.sqlite
+*.sqlite-*
+*.sqlite.*
+*.db
+*.db-*
+*.db.*
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+.omnirush/
+__agent__/
+
+# Tests/CI are source-controlled but not part of the Vercel build.
+tests/
+backend/tests/
+**/*.test.js
+**/*.test.mjs
+**/*.spec.js
+playwright.config.js
+.github/
+coverage/
+playwright-report/
+test-results/
+
+# Dependencies and generated output are recreated in the build environment.
+.git/
+node_modules/
+dist/
+dist-ssr/
+.cache/
+.vite/
+*.tsbuildinfo
+public/content-assets/**
+!public/content-assets/placeholder.svg
+
+# Local tooling and logs.
+.vscode/
+.idea/
+.DS_Store
+logs/
+*.log
+*.local
+
+# Restore these only when deliberately switching to self-hosting.
+Dockerfile
+.dockerignore
+compose.yaml
+deploy/
+DEPLOYMENT.md

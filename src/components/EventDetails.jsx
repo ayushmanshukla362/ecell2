@@ -1,13 +1,22 @@
 import { CalendarDays, Share2 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { findEventBySlug } from './EventsData'
+import { useContent } from '../content/ContentContext'
+import ContentImage from '../content/ContentImage'
+import ContentStatus from '../content/ContentStatus'
 
 const sectionLabels = { about: 'About the event', vision: 'Our vision', callout: 'In focus', review: 'Event review', conclusion: 'Conclusion' }
 
 function EventDetails() {
   const { slug } = useParams()
-  const event = findEventBySlug(slug)
+  const { events, loading, error, retry } = useContent()
+  const event = findEventBySlug(events, slug)
+  const [shareStatus, setShareStatus] = useState(null)
+  const currentShare = shareStatus?.slug === slug ? shareStatus : null
+
+  if (loading || error) return <main className="event-detail-page"><div className="site-section"><Link className="back-link" to="/events">← Back to the archive</Link><ContentStatus loading={loading} error={error} retry={retry} /></div></main>
 
   if (!event) {
     return (
@@ -19,10 +28,30 @@ function EventDetails() {
 
   const sections = event.descriptionSections || { about: event.description || '' }
   const heroImage = event.images?.[0] || event.image
-  const handleShare = () => {
-    const shareData = { title: event.title, text: `Check out this event: ${event.title}`, url: window.location.href }
-    if (navigator.share) navigator.share(shareData).catch(() => {})
-    else navigator.clipboard?.writeText(window.location.href)
+  const handleShare = async () => {
+    const url = window.location.href
+    const shareData = { title: event.title, text: `Check out this event: ${event.title}`, url }
+    setShareStatus({ slug, busy: true, message: '' })
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+        setShareStatus({ slug, message: 'Event shared.' })
+        return
+      } catch (error) {
+        if (error?.name === 'AbortError') {
+          setShareStatus({ slug, message: 'Sharing canceled. No link was shared.' })
+          return
+        }
+        // A denied or unavailable native share can still fall back to copying.
+      }
+    }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
+      await navigator.clipboard.writeText(url)
+      setShareStatus({ slug, message: 'Event link copied to clipboard.' })
+    } catch {
+      setShareStatus({ slug, error: true, message: 'Could not share or copy automatically. Select and copy the event link below.', manualUrl: url })
+    }
   }
 
   return (
@@ -36,24 +65,30 @@ function EventDetails() {
             <p className="event-detail-hero__summary">{event.shortDescription}</p>
             <div className="event-detail-hero__actions">
               <span><CalendarDays size={16} aria-hidden="true" /> {event.date}</span>
-              <button type="button" onClick={handleShare}><Share2 size={15} aria-hidden="true" /> Share event</button>
+              <button type="button" onClick={handleShare} disabled={currentShare?.busy} aria-busy={Boolean(currentShare?.busy)}><Share2 size={15} aria-hidden="true" /> {currentShare?.busy ? 'Sharing…' : 'Share event'}</button>
+              {event.registrationUrl && <a className="text-link" href={event.registrationUrl} target="_blank" rel="noreferrer noopener">Register for this event ↗</a>}
             </div>
+            <p className={`event-share-status${currentShare?.error ? ' is-error' : ''}`} role={currentShare?.error ? 'alert' : 'status'}>{currentShare?.message}</p>
+            {currentShare?.manualUrl && <div className="event-share-fallback">
+              <label htmlFor="event-share-url">Event link</label>
+              <input id="event-share-url" type="url" readOnly value={currentShare.manualUrl} onFocus={(inputEvent) => inputEvent.currentTarget.select()} />
+            </div>}
           </motion.div>
           <motion.figure className="event-detail-hero__image" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.1 }}>
-            <img src={heroImage} alt={`${event.title} event`} width="1200" height="800" />
+            <ContentImage src={heroImage} alt={`${event.title} event`} width="1200" height="800" />
             <figcaption>{event.category} / {event.year}</figcaption>
           </motion.figure>
         </section>
 
         <div className="event-detail-meta">
-          <div><span>Venue</span><strong>{event.venue === 'TODO: add venue' ? 'Venue details unavailable' : event.venue}</strong></div>
+          <div><span>Venue</span><strong>{!event.venue || event.venue === 'TODO: add venue' ? 'Venue details unavailable' : event.venue}</strong></div>
           <div><span>Speakers</span><strong>{event.speakers?.length ? event.speakers.join(', ') : 'Not listed'}</strong></div>
           <div><span>Highlights</span><strong>{event.highlights?.length ? event.highlights.join(' · ') : 'Not listed'}</strong></div>
         </div>
 
         {event.images?.length > 1 && (
           <div className="event-detail-gallery" aria-label="Event gallery">
-            {event.images.slice(0, 4).map((image, index) => <img key={`${event.title}-${index}`} src={image} alt={`${event.title} moment ${index + 1}`} loading="lazy" />)}
+            {event.images.map((image, index) => <ContentImage key={`${event.id}-${index}`} src={image} alt={`${event.title} moment ${index + 1}`} loading="lazy" />)}
           </div>
         )}
 
@@ -61,7 +96,7 @@ function EventDetails() {
           {Object.entries(sectionLabels).map(([key, label], index) => sections[key] ? (
             <motion.article key={key} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-10% 0px' }} transition={{ duration: 0.55, delay: index * 0.05 }}>
               <span className="event-detail-copy__index">0{index + 1}</span>
-              <div><h2>{label}</h2><p>{sections[key]}</p></div>
+              <div><h2>{label}</h2><p style={{ whiteSpace: 'pre-line' }}>{sections[key]}</p></div>
             </motion.article>
           ) : null)}
         </section>

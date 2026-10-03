@@ -1,17 +1,17 @@
-// firebaseConfig.js
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; 
+// Optional legacy Firebase integration. Browser configuration is public, not a secret.
+// The CMS and authentication use the server API, not client-side Firestore permissions.
+import { initializeApp } from 'firebase/app'
+import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+}
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-export { db };
+export const db = firebaseConfig.apiKey && firebaseConfig.projectId
+  ? getFirestore(initializeApp(firebaseConfig))
+  : null

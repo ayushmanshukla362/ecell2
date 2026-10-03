@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useLocation } from 'react-router-dom';
+import { api } from '../../lib/api';
 
 const initialFormData = {
   name: "",
@@ -7,8 +9,13 @@ const initialFormData = {
 };
 
 function ContactForm() {
-  const [formData, setFormData] = useState(initialFormData);
+  const { state } = useLocation();
+  const [formData, setFormData] = useState(() => ({
+    ...initialFormData,
+    email: typeof state?.email === 'string' ? state.email.slice(0, 254) : '',
+  }));
   const [formStatus, setFormStatus] = useState({ type: "", message: "" });
+  const [busy, setBusy] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -18,7 +25,7 @@ function ContactForm() {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const name = formData.name.trim();
@@ -49,19 +56,18 @@ function ContactForm() {
       return;
     }
 
-    const subject = `Contact from ${name}`;
-    const body = `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`;
-    const mailtoUrl = `mailto:ecell@abes.ac.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    setFormStatus({
-      type: "success",
-      message: "Your email app should open with your message ready to send.",
-    });
-    window.location.href = mailtoUrl;
+    setBusy(true);
+    try {
+      const result = await api('/api/contact', { method: 'POST', body: { name, email, message } });
+      setFormStatus({ type: 'success', message: result.message });
+      setFormData(initialFormData);
+    } catch (error) {
+      setFormStatus({ type: 'error', message: error.message });
+    } finally { setBusy(false); }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="contact-form" noValidate>
+    <form id="contact-form" aria-label="Contact E-Cell" onSubmit={handleSubmit} className="contact-form" noValidate>
       <div className="contact-form__split">
         <div>
           <label htmlFor="contact-name">
@@ -77,6 +83,7 @@ function ContactForm() {
             autoComplete="name"
             required
             minLength="2"
+            maxLength="120"
             className="contact-form__input"
           />
         </div>
@@ -92,6 +99,7 @@ function ContactForm() {
             onChange={handleChange}
             placeholder="you@example.com"
             autoComplete="email"
+            maxLength="254"
             required
             className="contact-form__input"
           />
@@ -110,6 +118,7 @@ function ContactForm() {
           placeholder="Tell us how we can help..."
           required
           minLength="10"
+          maxLength="5000"
           rows="5"
           className="contact-form__input contact-form__textarea"
         />
@@ -118,8 +127,9 @@ function ContactForm() {
       <button
         type="submit"
         className="contact-form__submit"
+        disabled={busy}
       >
-        Send message
+        {busy ? 'Sending…' : 'Send message'}
         <span aria-hidden="true">↗</span>
       </button>
 

@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 import { FaInstagram } from 'react-icons/fa6'
 import { PiLinkedinLogoBold } from 'react-icons/pi'
+import ContentImage from '../../content/ContentImage'
 
 /* eslint-disable react/prop-types */
 
@@ -13,7 +14,7 @@ function TeamMemberCard({ member, featured = false }) {
   return (
     <article className={`team-archive-card ${featured ? 'team-archive-card--featured' : ''}`}>
       <div className="team-archive-card__image">
-        <img src={member.image || '/placeholder.svg'} alt={member.name} width="500" height="500" loading="lazy" />
+        <ContentImage src={member.image} alt={member.name} width="500" height="500" loading="lazy" />
         <span>{member.role || 'E-Cell ABESEC'}</span>
       </div>
       <div className="team-archive-card__body">
