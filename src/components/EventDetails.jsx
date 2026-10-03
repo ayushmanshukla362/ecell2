@@ -1,272 +1,73 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Share2, Star, Sparkles } from "lucide-react";
-import events from "./EventsData";
-import AchievementCarousel from "./AchievementCarousel";
+import { CalendarDays, Share2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Link, useParams } from 'react-router-dom'
+import { findEventBySlug } from './EventsData'
 
-// Utility function to generate slug from event title
-const createSlug = (title) => title.toLowerCase().replace(/ /g, "-");
+const sectionLabels = { about: 'About the event', vision: 'Our vision', callout: 'In focus', review: 'Event review', conclusion: 'Conclusion' }
 
-const EventDetail = () => {
-  const { slug } = useParams(); // Get the slug from the route
-  const [activeTab, setActiveTab] = useState("about");
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Find event based on the slug
-  const event = events.find((event) => createSlug(event.title) === slug);
-
-  useEffect(() => {
-    // Set loaded state after component mounts for animations
-    setIsLoaded(true);
-  }, []);
+function EventDetails() {
+  const { slug } = useParams()
+  const event = findEventBySlug(slug)
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center text-white p-8 bg-zinc-900 rounded-lg shadow-xl border border-zinc-800">
-          <h2 className="text-2xl font-bold mb-4">Event Not Found</h2>
-          <p className="mb-6">
-            The event you're looking for doesn't exist or has been removed.
-          </p>
-          <Link
-            to="/"
-            className="inline-flex items-center px-4 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-400 transition-colors font-medium"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Events
-          </Link>
-        </div>
-      </div>
-    );
+      <main className="event-detail-page event-detail-page--missing">
+        <div><p className="eyebrow"><span>404</span> / Archive</p><h1>Event not found.</h1><Link className="text-link" to="/events">Back to the archive</Link></div>
+      </main>
+    )
   }
 
-  // Get description sections from the event data
-  const descriptionSections = event.descriptionSections || {
-    about: event.description,
-    vision: "",
-    callout: "",
-    review: "",
-    conclusion: "",
-  };
-
+  const sections = event.descriptionSections || { about: event.description || '' }
+  const heroImage = event.images?.[0] || event.image
   const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: event.title,
-          text: `Check out this event: ${event.title}`,
-          url: window.location.href,
-        })
-        .catch((error) => console.log("Error sharing", error));
-    } else {
-      // Fallback for browsers that don't support the Web Share API
-      navigator.clipboard
-        .writeText(window.location.href)
-        .then(() => alert("Link copied to clipboard!"))
-        .catch((err) => console.error("Could not copy text: ", err));
-    }
-  };
+    const shareData = { title: event.title, text: `Check out this event: ${event.title}`, url: window.location.href }
+    if (navigator.share) navigator.share(shareData).catch(() => {})
+    else navigator.clipboard?.writeText(window.location.href)
+  }
 
   return (
-    <div className="min-h-screen bg-black py-12 px-4 sm:px-6">
-      <div className="max-w-7xl mt-6  mx-auto">
-        {/* Back Button */}
-        <Link
-          to="/events"
-          className={`inline-flex mt-10 items-center text-yellow-500 hover:text-yellow-400 mb-8 transition-colors ${isLoaded ? "animate-fadeIn" : "opacity-0"
-            }`}
-          style={{ animationDelay: "0.1s" }}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Events
-        </Link>
-
-        {/* Bento Grid Layout - First Row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
-          {/* Event Info Block - 5 columns */}
-          <div
-            className={`md:col-span-5 bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl flex flex-col justify-between h-[300px] hover:border-zinc-700 transition-all duration-300 ${isLoaded ? "animate-slideInLeft" : "opacity-0"
-              }`}
-            style={{ animationDelay: "0.2s" }}
-          >
-            <div>
-              <div className="inline-flex items-center px-3 py-1 bg-black/60 rounded-full border border-zinc-800 mb-4">
-                <Sparkles className="h-3 w-3 text-yellow-500 mr-2" />
-                <span className="text-yellow-500 font-medium text-xs">
-                  FEATURED EVENT
-                </span>
-              </div>
-
-              <h1 className="text-3xl font-bold mb-3">
-                <span className="text-yellow-500">
-                  {event.title.split(" ").slice(0, 2).join(" ")}{" "}
-                </span>
-                <span className="text-white">
-                  {event.title.split(" ").slice(2).join(" ")}
-                </span>
-              </h1>
-
-              <div className="flex items-center text-zinc-400 mb-4">
-                <Calendar className="h-4 w-4 mr-2 text-yellow-500" />
-                <span>{event.date}</span>
-              </div>
-
-              <p className="text-zinc-400 text-sm line-clamp-3">
-                {descriptionSections.about.substring(0, 120)}...
-              </p>
+    <main className="event-detail-page" aria-labelledby="event-detail-title">
+      <div className="site-section">
+        <Link to="/events" className="back-link">← Back to the archive</Link>
+        <section className="event-detail-hero">
+          <motion.div className="event-detail-hero__copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
+            <p className="eyebrow"><span>{event.year}</span> / {event.category}</p>
+            <h1 id="event-detail-title">{event.title}</h1>
+            <p className="event-detail-hero__summary">{event.shortDescription}</p>
+            <div className="event-detail-hero__actions">
+              <span><CalendarDays size={16} aria-hidden="true" /> {event.date}</span>
+              <button type="button" onClick={handleShare}><Share2 size={15} aria-hidden="true" /> Share event</button>
             </div>
+          </motion.div>
+          <motion.figure className="event-detail-hero__image" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.1 }}>
+            <img src={heroImage} alt={`${event.title} event`} width="1200" height="800" />
+            <figcaption>{event.category} / {event.year}</figcaption>
+          </motion.figure>
+        </section>
 
-            <button
-              onClick={handleShare}
-              className="inline-flex items-center px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-md text-white transition-colors self-start text-sm"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Share Event
-            </button>
-          </div>
-
-          {/* Event Image Block - 7 columns */}
-          <div
-            className={`md:col-span-7 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl h-[300px] hover:shadow-2xl transition-all duration-300 ${isLoaded ? "animate-slideInRight" : "opacity-0"
-              }`}
-            style={{ animationDelay: "0.3s" }}
-          >
-            {event.images && event.images.length > 0 ? (
-              <div className="w-full h-full">
-                <AchievementCarousel images={event.images} />
-              </div>
-            ) : (
-              <img
-                src={event.image || "/placeholder.svg"}
-                alt={event.title}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                loading="lazy"
-              />
-            )}
-          </div>
-
+        <div className="event-detail-meta">
+          <div><span>Venue</span><strong>{event.venue === 'TODO: add venue' ? 'Venue details unavailable' : event.venue}</strong></div>
+          <div><span>Speakers</span><strong>{event.speakers?.length ? event.speakers.join(', ') : 'Not listed'}</strong></div>
+          <div><span>Highlights</span><strong>{event.highlights?.length ? event.highlights.join(' · ') : 'Not listed'}</strong></div>
         </div>
 
-        {/* Event Content */}
-        <div
-          className={`bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl overflow-hidden hover:border-zinc-700 transition-all duration-300 ${isLoaded ? "animate-slideInUp" : "opacity-0"
-            }`}
-          style={{ animationDelay: "0.4s" }}
-        >
-          {/* Tabs */}
-          <div className="flex overflow-x-auto scrollbar-hide border-b border-zinc-800">
-            <button
-              onClick={() => setActiveTab("about")}
-              className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${activeTab === "about"
-                  ? "text-yellow-500 border-b-2 border-yellow-500"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                }`}
-            >
-              About Event
-            </button>
-            <button
-              onClick={() => setActiveTab("vision")}
-              className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${activeTab === "vision"
-                  ? "text-yellow-500 border-b-2 border-yellow-500"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                }`}
-            >
-              Vision
-            </button>
-            <button
-              onClick={() => setActiveTab("review")}
-              className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${activeTab === "review"
-                  ? "text-yellow-500 border-b-2 border-yellow-500"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                }`}
-            >
-              Review
-            </button>
-            <button
-              onClick={() => setActiveTab("conclusion")}
-              className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${activeTab === "conclusion"
-                  ? "text-yellow-500 border-b-2 border-yellow-500"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                }`}
-            >
-              Conclusion
-            </button>
+        {event.images?.length > 1 && (
+          <div className="event-detail-gallery" aria-label="Event gallery">
+            {event.images.slice(0, 4).map((image, index) => <img key={`${event.title}-${index}`} src={image} alt={`${event.title} moment ${index + 1}`} loading="lazy" />)}
           </div>
+        )}
 
-          {/* Tab Content */}
-          <div className="p-6 sm:p-8">
-            {activeTab === "about" && (
-              <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-yellow-500 mb-4">
-                  About The Event
-                </h2>
-                <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
-                  {descriptionSections.about}
-                </p>
-              </div>
-            )}
-
-            {activeTab === "vision" && (
-              <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-yellow-500 mb-4">
-                  Our Vision
-                </h2>
-                {/* <div className="bg-black/40 p-6 rounded-lg border-l-4 border-yellow-500 mb-6">
-                  <p className="text-zinc-300 leading-relaxed italic">
-                    {descriptionSections.callout}
-                  </p>
-                </div> */}
-                <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
-                  {descriptionSections.vision}
-                </p>
-              </div>
-            )}
-
-            {activeTab === "review" && (
-              <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-yellow-500 mb-4">
-                  Event Review
-                </h2>
-                <div className="flex items-center mb-6">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className="h-5 w-5 text-yellow-500 fill-yellow-500"
-                      />
-                    ))}
-                  </div>
-                  <span className="ml-2 text-zinc-300">
-                    Outstanding Experience
-                  </span>
-                </div>
-                <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
-                  {descriptionSections.review}
-                </p>
-              </div>
-            )}
-
-            {activeTab === "conclusion" && (
-              <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-yellow-500 mb-4">
-                  Conclusion
-                </h2>
-                <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
-                  {descriptionSections.conclusion}
-                </p>
-                <div className="mt-8 p-4 bg-black/40 rounded-lg border border-zinc-800">
-                  <p className="text-white font-medium">
-                    <span className="text-yellow-500">Stay tuned</span> for our
-                    next event! Follow us on social media for updates.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <section className="event-detail-copy" aria-label="Event story">
+          {Object.entries(sectionLabels).map(([key, label], index) => sections[key] ? (
+            <motion.article key={key} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-10% 0px' }} transition={{ duration: 0.55, delay: index * 0.05 }}>
+              <span className="event-detail-copy__index">0{index + 1}</span>
+              <div><h2>{label}</h2><p>{sections[key]}</p></div>
+            </motion.article>
+          ) : null)}
+        </section>
       </div>
-    </div>
-  );
-};
+    </main>
+  )
+}
 
-export default EventDetail;
+export default EventDetails

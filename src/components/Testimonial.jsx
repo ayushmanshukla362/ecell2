@@ -1,181 +1,44 @@
-import React from "react";
-import Card from "./Card";
-import { Fade } from "react-awesome-reveal";
-import { GiPolarStar } from "react-icons/gi";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import dg from "../assets/dg.webp";
-import founder from "../assets/founder.jpg";
-import president from "../assets/president.webp";
-import np from "../assets/np.jpg";
-import sa from "../assets/sa.jpg";
-import kaa from "../assets/kaa.webp";
-import t from "../assets/t.webp";
-import { DiGithubAlt } from "react-icons/di";
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowLeft, ArrowRight, Quote } from 'lucide-react'
+import { useState } from 'react'
+import dg from '../assets/dg.webp'
+import founder from '../assets/founder.jpg'
+import president from '../assets/president.webp'
+import np from '../assets/np.jpg'
+import sa from '../assets/sa.jpg'
+import kaa from '../assets/kaa.webp'
+import Reveal from './Reveal'
 
-const testimonialData = [
-  {
-    id: 1,
-    description:
-      "E-Cell ABESEC holds a special place in my heart, from chaotic first events to conducting a drone show and reaching NEC 2023 finals. Guided by Mahendra Sir and Prabansh Sir, it fostered growth, teamwork, and unforgettable memories.",
-    imgSrc: dg,
-    name: "Divyanshyu Gupta",
-    role: "Mentor",
-  },
-  {
-    id: 2,
-    description:
-      "E-Cell ABESEC guided my growth from volunteer to Tech-Ops Coordinator, highlighted by launching the first live website, fostering professional and personal development under inspiring mentorship.",
-    imgSrc: np,
-    name: "Neelansh Pandey",
-    role: "Former Tech-Ops Coordinator, E-CELL ABESEC",
-  },
-  {
-    id: 3,
-    description:
-      "E-Cell ABESEC guided my growth from volunteer to Social Media Coordinator, fostering personal and professional development through impactful events and lasting relationships under inspiring mentorship.",
-    imgSrc: sa,
-    name: "Shoaib Ahmad",
-    role: "Former Social Media Coordinator, E-CELL ABESEC",
-  },
-  {
-    id: 4,
-    description:
-      "E-Cell ABESEC shaped my journey from volunteer to Vice President, boosting female participation by 30%, enhancing leadership skills, and building confidence while leaving a lasting legacy. fostering personal and professional growth.",
-    imgSrc: kaa,
-    name: "Kamakshi Agarwal",
-    role: "Former Vice president",
-  },
-  {
-    id: 5,
-    description:
-      "E-Cell ABESEC holds a special place in my heart, from chaotic first events to conducting an E-SUMMIT, reaching NEC 2023 finals, and achieving AIR 27. Guided by Mahendra Sir and Prabhansh Sir, it fostered growth and teamwork.",
-    imgSrc: president,
-    name: "Yash Mishra",
-    role: "Former NEC Lead and President E-CELL ABESEC",
-  },
-  {
-    id: 6,
-    description:
-      "Founding E-CELL ABESESC was a journey of vision, perseverance, and teamwork. With Mahendra Sir's guidance, we built a platform to foster innovation and inspire future entrepreneurs.",
-    imgSrc: founder,
-    name: "Prabhansh Tripathi",
-    role: "Founder",
-  },
+const testimonials = [
+  { quote: 'E-Cell ABESEC holds a special place in my heart, from chaotic first events to conducting a drone show and reaching NEC 2023 finals. Guided by Mahendra Sir and Prabansh Sir, it fostered growth, teamwork, and unforgettable memories.', image: dg, name: 'Divyanshyu Gupta', role: 'Mentor' },
+  { quote: 'E-Cell ABESEC guided my growth from volunteer to Tech-Ops Coordinator, highlighted by launching the first live website, fostering professional and personal development under inspiring mentorship.', image: np, name: 'Neelansh Pandey', role: 'Former Tech-Ops Coordinator, E-CELL ABESEC' },
+  { quote: 'E-Cell ABESEC guided my growth from volunteer to Social Media Coordinator, fostering personal and professional development through impactful events and lasting relationships under inspiring mentorship.', image: sa, name: 'Shoaib Ahmad', role: 'Former Social Media Coordinator, E-CELL ABESEC' },
+  { quote: 'E-Cell ABESEC shaped my journey from volunteer to Vice President, boosting female participation by 30%, enhancing leadership skills, and building confidence while leaving a lasting legacy.', image: kaa, name: 'Kamakshi Agarwal', role: 'Former Vice President' },
+  { quote: 'E-Cell ABESEC holds a special place in my heart, from chaotic first events to conducting an E-SUMMIT, reaching NEC 2023 finals, and achieving AIR 27.', image: president, name: 'Yash Mishra', role: 'Former NEC Lead and President E-CELL ABESEC' },
+  { quote: "Founding E-CELL ABESEC was a journey of vision, perseverance, and teamwork. With Mahendra Sir's guidance, we built a platform to foster innovation and inspire future entrepreneurs.", image: founder, name: 'Prabhansh Tripathi', role: 'Founder' },
 ]
 
-const ReviewCard = ({ img, name, username, body }) => {
-  return (
-    <div className="bg-[#141412] rounded-xl p-6 flex flex-col items-center text-center min-h-[250px] h-auto w-[350px] border border-[#26250F] hover:border-[#ffde59] mx-4 my-2 justify-between shadow-lg">
-      {/* Feedback Text */}
-      <p className="text-gray-300 mt-2 mb-4">{body}</p>
-
-      {/* User Info */}
-      <div className="flex items-center mt-auto space-x-3 text-left">
-        <img src={img || "/placeholder.svg"} alt={name} className="w-12 h-12 rounded-full border border-[#ffde59]" />
-        <div>
-          <h3 className="text-lg font-semibold text-[#ffde59]">{name}</h3>
-          <p className="text-sm text-gray-400">{username}</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function Testimonial() {
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  }
-
-  const titleVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      },
-    },
-  }
-
-  // Split testimonials into two rows for the marquee
-  const halfLength = Math.ceil(testimonialData.length / 2)
-  const firstRow = testimonialData.slice(0, halfLength)
-  const secondRow = testimonialData.slice(halfLength)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const active = testimonials[activeIndex]
+  const change = (direction) => setActiveIndex((current) => (current + direction + testimonials.length) % testimonials.length)
 
   return (
-    <div className="w-full bg-black py-16 relative overflow-hidden">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-[#ffde5920] via-transparent to-transparent opacity-20"></div>
-
-      {/* Testimonials Section Header */}
-      <div
-        className="flex flex-col items-center mb-16 relative z-10"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-      >
-        <div
-          variants={titleVariants}
-          className="rounded-full px-4 py-1 mb-4 w-fit bg-[#141412] border border-[#26250F]"
-        >
-          <span className="flex items-center gap-2 text-[#ffde59]">
-            <GiPolarStar />
-            TESTIMONIALS
-          </span>
-        </div>
-        <h2 variants={titleVariants} className="text-4xl sm:text-5xl font-semibold text-center text-white">
-          Testimonials <span className="text-[#ffde59]">About Us</span>
-        </h2>
+    <section className="voice-section site-section" aria-labelledby="voice-title">
+      <div className="voice-section__top">
+        <Reveal><p className="eyebrow"><span>06</span> / In their words</p></Reveal>
+        <Reveal delay={0.08}><h2 id="voice-title">You don&apos;t leave<br /><em>the same.</em></h2></Reveal>
+        <Reveal delay={0.14} className="voice-section__controls">
+          <button type="button" aria-label="Previous testimonial" onClick={() => change(-1)}><ArrowLeft size={18} /></button>
+          <span>{String(activeIndex + 1).padStart(2, '0')} / {String(testimonials.length).padStart(2, '0')}</span>
+          <button type="button" aria-label="Next testimonial" onClick={() => change(1)}><ArrowRight size={18} /></button>
+        </Reveal>
       </div>
-
-      {/* Marquee Container */}
-      <div className="relative w-full overflow-hidden">
-        {/* First Row (left to right) */}
-        <div className="marquee-container">
-          <div className="marquee">
-            {[...firstRow, ...firstRow].map((item, index) => (
-              <ReviewCard
-                key={`first-row-${index}`}
-                img={item.imgSrc}
-                name={item.name}
-                username={item.role}
-                body={item.description}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Second Row (right to left) */}
-        <div className="marquee-container mt-4">
-          <div className="marquee reverse">
-            {[...secondRow, ...secondRow].map((item, index) => (
-              <ReviewCard
-                key={`second-row-${index}`}
-                img={item.imgSrc}
-                name={item.name}
-                username={item.role}
-                body={item.description}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Gradient overlays */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black to-transparent z-10"></div>
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black to-transparent z-10"></div>
+      <div className="voice-section__body">
+        <div className="voice-section__portrait"><AnimatePresence mode="wait"><motion.img key={active.name} src={active.image} alt={active.name} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} /></AnimatePresence></div>
+        <div className="voice-section__quote"><Quote size={36} strokeWidth={1} aria-hidden="true" /><AnimatePresence mode="wait"><motion.blockquote key={active.name} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.35 }}>{active.quote}</motion.blockquote></AnimatePresence><div className="voice-section__credit"><strong>{active.name}</strong><span>{active.role}</span></div></div>
       </div>
-    </div>
+    </section>
   )
 }
 

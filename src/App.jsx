@@ -1,11 +1,9 @@
-import React from "react";
 import './App.css';
 import Home from "./Pages/Home";
 import Teams from "./Pages/Teams";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import Cursor from './components/Cursor';
 import Events from './components/EventsPage';
 import EventDetail from './components/EventDetails'; // Import EventDetail component
 import ContactUs from "./components/ContactUs";
@@ -17,7 +15,6 @@ function App() {
     <>
       <BrowserRouter>
         <Navbar />
-        <Cursor />
         <ScrollToTop />
         <Routes>
           

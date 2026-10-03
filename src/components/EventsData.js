@@ -1,5 +1,4 @@
 // Import images
-import entrepreneurshipShow from "../assets/sa.jpg";
 import navyVisit from "../assets/nv.webp";
 import nv from "../assets/nv.jpg";
 import gameOfDrones from "../assets/god.webp";
@@ -10,6 +9,7 @@ import fc from "../assets/fc.webp";
 import erk from "../assets/eureka.webp";
 import tes from "../assets/tes2.webp";
 import tes3 from "../assets/tes3convrted.webp";
+import tes3Listing from "../assets/tes3.0.webp";
 import tec from "../assets/tes.png";
 import tes3a from "../assets/tes3a.webp";
 import tes3b from "../assets/tes3b.webp";
@@ -50,6 +50,13 @@ const events = [
     id: 1,
     title: "The Entrepreneurship Show 2023",
     date: "February 27th '23",
+    year: 2023,
+    category: 'Flagship Event',
+    shortDescription: 'The Entrepreneurship Show, the flagship event of E-Cell ABESEC, is a vibrant platform designed to ignite entrepreneurial passion and educate a startup mindset among participants.',
+    venue: "TODO: add venue",
+    speakers: ['Karandeep Singh Vohra', 'Sandeep Jain'],
+    highlights: [],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "The Entrepreneurship Show, the flagship event of E-Cell ABESEC, is a vibrant platform designed to ignite entrepreneurial passion and educate a startup mindset among participants. TES has become synonymous with inspiration, innovation, and invaluable insights, creating an atmosphere where ideas thrive and future leaders are born.",
@@ -61,12 +68,20 @@ const events = [
         "Each edition of TES unfolded as an engaging talk show, with a skilled moderator guiding thought-provoking conversations with the speakers. The interactive format encouraged active participation, with attendees asking pressing questions and receiving personalized advice from these accomplished leaders. This direct exchange of ideas and perspectives made the event dynamic and impactful. Missed the show this time? Don't worry—TES will be back, bigger and better, with more stories, insights, and opportunities to fuel your entrepreneurial spirit!",
     },
     image: tes,
+    listingImage: tec,
     images: [tes23],
   },
   {
     id: 2,
     title: "Navy Visit 2023",
     date: "March 15th '23",
+    year: 2023,
+    category: 'Educational Visit',
+    shortDescription: 'E-CELL organized an exclusive learning opportunity through a field trip to a naval base.',
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: [],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "E-CELL organized an exclusive learning opportunity through a field trip to a naval base. Participants gained firsthand exposure to naval operations, advanced maritime technologies, and strategic leadership structures.",
@@ -85,6 +100,13 @@ const events = [
     id: 3,
     title: "FOUNDER'S CAP TRAINING",
     date: "April 10th '22",
+    year: 2022,
+    category: 'Training',
+    shortDescription: 'The Training Program was an electrifying and empowering event tailored exclusively for the talented and ambitious female students.',
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: [],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "The Training Program was an electrifying and empowering event tailored exclusively for the talented and ambitious female students. The program was designed to help young women with the knowledge, confidence, and practical tools required to embark on a successful entrepreneurial success. With a core focus on innovation and leadership, the event aimed to amplify women's influence within the college community by inspiring them to dream big and turn their business ideas into reality.",
@@ -102,6 +124,13 @@ const events = [
     id: 4,
     title: "Game of Drones",
     date: "November 18th '22",
+    year: 2022,
+    category: 'Competition',
+    shortDescription: "At Tech Pravaah, ABESEC's annual tech fest, the 'Game of Drones' event was a thrilling display of top-notch drone technology and high-speed racing.",
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: ['Drone racing', 'Aerial tricks', 'Exposure to drone technology'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "At Tech Pravaah, ABESEC's annual tech fest, the 'Game of Drones' event was a thrilling display of top-notch drone technology and high-speed racing. It drew in both tech fans and students, giving them an exciting look at the world of drones and the amazing progress being made. With intense races and impressive aerial tricks, 'Game of Drones' brought innovation to life in a really engaging way.",
@@ -119,6 +148,13 @@ const events = [
     id: 5,
     title: "E-SUMMIT (TECHPRAVAAH)",
     date: "November 19th '22",
+    year: 2022,
+    category: 'Summit',
+    shortDescription: "E-Cell's flagship annual event, the E-Summit, successfully convened a diverse assembly of academics, venture capitalists, and business leaders.",
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: ['Keynote speeches', 'Panel discussions', 'India’s Startup Ecosystem 2030', 'Government Policies and Tech Startup Challenges'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "E-Cell's flagship annual event, the E-Summit, successfully convened a diverse assembly of academics, venture capitalists, and business leaders, all united in their mission to cultivate a robust entrepreneurial mindset among attendees.",
@@ -136,6 +172,13 @@ const events = [
     id: 6,
     title: "BIDWISER (THE MOCK IPL AUCTION)",
     date: "January 18th '24",
+    year: 2024,
+    category: 'Simulation',
+    shortDescription: 'The Bid-wiser (Mock IPL Auction) is a prestigious event organized by E-Cell, offering students an insightful glimpse into the IPL auction process.',
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: ['Simulated IPL auction', 'Strategic bidding', 'Teamwork and financial management'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "The Bid-wiser (Mock IPL Auction) is a prestigious event organized by E-Cell, offering students an insightful glimpse into the IPL auction process. Participants will form teams representing various IPL franchises and strategically bid on simulated players based on real athletes, all within a predetermined budget.",
@@ -153,6 +196,13 @@ const events = [
     id: 7,
     title: "ACHIEVER’S TALK",
     date: "November 19th '22",
+    year: 2022,
+    category: 'Talk',
+    shortDescription: "E-Cell recently hosted The Achiever's Talk, a distinguished event designed to facilitate meaningful one-on-one interactions with esteemed organizations.",
+    venue: "TODO: add venue",
+    speakers: ['Anubhav Jain'],
+    highlights: ['Interactive Q&A', 'One-on-one interactions', 'Entrepreneurial insights'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "E-Cell recently hosted The Achiever's Talk, a distinguished event designed to facilitate meaningful one-on-one interactions with esteemed organizations, including GST Noida, Jain Shikanji Waale, and Anubhav Jain. This interactive platform gave attendees invaluable insights into the entrepreneurial landscape and allowed them to engage with successful business leaders who shared their motivational narratives.",
@@ -170,6 +220,13 @@ const events = [
     id: 8,
     title: "Eureka",
     date: "September 10th '22",
+    year: 2022,
+    category: 'Entrepreneurship',
+    shortDescription: 'The key objectives of the Eureka initiative at IIT Bombay are to empower aspiring entrepreneurs by providing a comprehensive platform for showcasing innovative business ideas.',
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: ['Mentorship', 'Funding', 'Incubation support', 'Networking opportunities'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "The key objectives of the Eureka initiative at IIT Bombay are to empower aspiring entrepreneurs by providing a comprehensive platform for showcasing innovative business ideas, facilitating mentorship, funding, and incubation support.",
@@ -189,6 +246,13 @@ const events = [
     id: 9,
     title: "The Entrepreneurship Show 2024",
     date: "November 30th '24",
+    year: 2024,
+    category: 'Flagship Event',
+    shortDescription: 'The Entrepreneurship Show 2024 is a premier event that brings together aspiring entrepreneurs, industry leaders, and investors to explore the latest trends and innovations in the startup ecosystem.',
+    venue: "TODO: add venue",
+    speakers: ['Saumya Singh', 'Vijendra Singh Chauhan', 'Gajendra Purohit'],
+    highlights: ['Speaker sessions', 'Panel discussion', 'Business quiz'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "The Entrepreneurship Show 2024 is a premier event that brings together aspiring entrepreneurs, industry leaders, and investors to explore the latest trends and innovations in the startup ecosystem.",
@@ -202,12 +266,20 @@ const events = [
         "The Entrepreneurship Show was a highly impactful event that provided valuable insights and inspiration for aspiring entrepreneurs. It successfully created an environment conducive to learning, networking, and engagement, allowing participants to deepen their understanding of entrepreneurship. The event offered attendees the opportunity to connect with industry experts and like-minded individuals, gaining new perspectives and knowledge. By the end, participants were empowered and motivated, leaving with the confidence and tools to pursue their entrepreneurial ambitions and navigate future challenges.",
     },
     image: tes3, // cover image (optional fallback)
+    listingImage: tes3Listing,
     images: [tes3b, tes3c, tes3a, tes3d, tes3e],
   },
   {
     id: 10,
     title: "BizzMantra 2025",
     date: "May 31st '25",
+    year: 2025,
+    category: 'Simulation',
+    shortDescription: 'Bizz-Mantra 2025 brought the thrill of boardroom decisions to the student stage.',
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: ['Auctions', 'Negotiation battles', 'Strategy building'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "Bizz-Mantra 2025 brought the thrill of boardroom decisions to the student stage. Through  auctions, negotiation battles, and intense strategy building  , students lived through the challenges of business leadership — learning how to do more with less. The event saw participation from over  100+ bright minds  who showed brilliant teamwork and creative business thinking. The team that managed to  complete their product with the least virtual money spent emerged as the winner — proving that success isn't about spending more, but thinking smarter. With a remarkable  4.8/5 participant rating  , Bizz-Mantra 2025 truly set a new benchmark for interactive, impactful learning. ",
@@ -227,6 +299,13 @@ const events = [
     id: 11,
     title: "SQUID GAME 2025",
     date: "day : November 24th,25th,26th 2025",
+    year: 2025,
+    category: 'Competition',
+    shortDescription: 'E-Cell ABES EC brought the global phenomenon to life with SQUID GAME — a high-octane test of nerve, strategy, and survival.',
+    venue: "TODO: add venue",
+    speakers: [],
+    highlights: ['Red Light, Green Light', 'Strategic alliances', 'Elimination rounds'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "E-Cell ABES EC brought the global phenomenon to life with SQUID GAME — a high-octane test of nerve, strategy, and survival. Sponsored by Profito, this event transformed the campus into an arena where only the sharpest minds could survive. Students faced off in a series of iconic, tension-filled rounds inspired by the show, adapted to test their presence of mind and decision-making under pressure. From the stillness of 'Red Light, Green Light' to the strategic alliances formed in later rounds, the event was a masterclass in elimination. With over 100+ participants vying for the ultimate prize, only one rule applied: elimination meant game over. The last survivor standing didn't just win a game; they proved they had the resilience to outlast the competition.",
@@ -250,6 +329,13 @@ const events = [
     id:12, // Assuming the next ID in your sequence
     title: "IDEASTORM 2026 – Delhi NCR Zonal",
     date: "December 13th, 2025",
+    year: 2025,
+    category: 'Talk',
+    shortDescription: "E-Cell ABES EC, in collaboration with the E-Summit'26 initiative, hosted an exclusive 'Shark Tank Founder Talk' featuring Ashutosh Roy.",
+    venue: "TODO: add venue",
+    speakers: ['Ashutosh Roy'],
+    highlights: ['Shark Tank Founder Talk', 'Interactive Q&A', 'Mini-pitches'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "E-Cell ABES EC, in collaboration with the E-Summit'26 initiative, hosted an exclusive 'Shark Tank Founder Talk' featuring Ashutosh Roy. This high-impact session brought the electric atmosphere of the boardroom to the campus, offering students a rare glimpse into the world of high-stakes entrepreneurship. As a featured founder from the Shark Tank platform, Ashutosh Roy shared his journey from a raw idea to a market-disrupting reality. The event was designed to demystify the pitching process and provide a roadmap for aspiring student entrepreneurs on how to capture the attention of investors and scale a business in the modern economy.",
@@ -273,6 +359,13 @@ const events = [
     id: 13,
     title: "The Entrepreneurship Show 4.0",
     date: "February 21st, 2026",
+    year: 2026,
+    category: 'Flagship Event',
+    shortDescription: 'The Entrepreneurship Show 4.0 (TES 4.0) is the flagship annual event of the Entrepreneurship Cell of ABES Engineering College (ABESEC).',
+    venue: "TODO: add venue",
+    speakers: ['Ashok Agarwal', 'Srishti Gupta', 'Ankit Bansal', 'Vishwalok Nath', 'Alekh Johari', 'Gurnandan Singh', 'Keshav Jha'],
+    highlights: ['Speaker sessions', 'Business Quiz (B-Quiz)', 'Panel Discussion', 'Pitch Ground'],
+    registrationUrl: "",
     descriptionSections: {
       about:
         "The Entrepreneurship Show 4.0 (TES 4.0) is the flagship annual event of the Entrepreneurship Cell of ABES Engineering College (ABESEC). A prestigious full-day gathering of 450–500 students and aspiring entrepreneurs from ABES Engineering College and invited colleges across the region, TES 4.0 is designed to inspire, connect, and empower the next generation of founders. The event brings together celebrated speakers, seasoned panelists, and a vibrant audience to spark conversations that matter — about startups, funding, resilience, and the future of entrepreneurship.",
@@ -290,4 +383,11 @@ const events = [
   },
 ];
 
-export default events;
+export const createEventSlug = (title = '') => title.toLowerCase().replace(/ /g, '-')
+
+export const findEventBySlug = (slug = '') => {
+  if (slug === 'navy-visit-2023') return events.find((event) => event.id === 2)
+  return events.find((event) => createEventSlug(event.title) === slug)
+}
+
+export default events

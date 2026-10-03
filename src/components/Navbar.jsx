@@ -1,146 +1,55 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link} from 'react-router-dom';
-import Logo from '../assets/ecell.svg';
+import { Menu, X } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import logo from '../assets/ecell.svg'
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [isTablet, setIsTablet] = useState(false);
+const pageLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'Team', to: '/teams' },
+  { label: 'Events', to: '/events' },
+  { label: 'Contact', to: '/contactus' },
+]
 
-  const toggleNav = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const closeNav = () => {
-    setIsOpen(false);
-  };
-
-  const handleScroll = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-
-      setLastScrollY(currentScrollY);
-    }
-  }, [lastScrollY]);
-
-  const handleResize = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
-    }
-  }, []);
+function Navbar() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const lastScroll = useRef(0)
+  const location = useLocation()
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', handleScroll);
-      window.addEventListener('resize', handleResize);
-
-      handleResize();
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
-      };
+    const onScroll = () => {
+      const currentScroll = window.scrollY
+      setIsVisible(currentScroll < 80 || currentScroll < lastScroll.current)
+      lastScroll.current = currentScroll
     }
-  }, [handleScroll, handleResize]);
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => setIsOpen(false), [location.pathname])
 
   return (
-    <nav
-      className={`transition-transform duration-500 ease-in-out py-4 rounded-[70rem] md:w-[80vw] w-[98vw] mx-auto fixed top-3 left-1/2 transform -translate-x-1/2 border-[1px] z-10 bg-black ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}
-      style={{
-        border: '1px solid #322d22',
-        boxShadow: '20px -10px 100px #282410',
-        backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(1, 0, 0, 0.6)',
-        height: '5rem',
-      }}
-    >
-      <div className="container mx-auto px-[2rem] flex justify-between items-center h-full">
-        <Link to="/" className="flex-shrink-0">
-          <div className="w-20">
-            <img src={Logo} alt="Logo" />
-          </div>
+    <header className={`site-nav ${isVisible ? 'site-nav--visible' : 'site-nav--hidden'}`}>
+      <div className="site-nav__inner">
+        <Link to="/" className="site-nav__brand" aria-label="E-Cell ABESEC home">
+          <img src={logo} alt="E-Cell ABESEC" />
+          <span>ABES<br /><small>Engineering College</small></span>
         </Link>
-        <div className={`lg:flex lg:items-center lg:space-x-20 ${isOpen ? 'block bg-black p-4 rounded-md absolute top-full left-0 right-0 lg:relative lg:bg-transparent lg:p-0' : 'hidden'} lg:block`}>
-          <Link
-            to="/"
-            className="text-11 block mt-4 lg:mt-0 text-white hover:text-[#ffde59] transition-colors duration-200"
-            onClick={closeNav}
-          >
-            Home
-          </Link>
-          <Link
-            to="/teams"
-            className="text-11 block mt-4 lg:mt-0 text-white hover:text-[#ffde59] transition-colors duration-200"
-            onClick={closeNav}
-          >
-            Teams
-          </Link>
-          <Link
-            to="/events"
-            className="text-11 block mt-4 lg:mt-0 text-white hover:text-[#ffde59] transition-colors duration-200"
-            onClick={closeNav}
-          >
-            Events
-          </Link>
-          <Link
-            to="/contactus"
-            className="text-11 block mt-4 lg:mt-0 text-white hover:text-[#ffde59] transition-colors duration-200"
-            onClick={closeNav}
-          >
-            Contact Us
-          </Link>
-        </div>
-        <div className={`${isTablet ? 'block' : 'lg:hidden'}`}>
-          <button
-            onClick={toggleNav}
-            className="text-white focus:outline-none"
-            aria-label="Toggle navigation"
-          >
-            {isOpen ? (
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            ) : (
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                ></path>
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
-    </nav>
-  );
-};
 
-export default Navbar;
+        <nav className={`site-nav__links ${isOpen ? 'site-nav__links--open' : ''}`} aria-label="Primary navigation">
+          {pageLinks.map((item) => (
+            <Link key={item.to} to={item.to} className={location.pathname === item.to ? 'is-active' : ''}>{item.label}</Link>
+          ))}
+        </nav>
+
+        <a className="site-nav__cta" href="/#connect">Start a conversation <span>↗</span></a>
+        <button className="site-nav__toggle" type="button" aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} onClick={() => setIsOpen((open) => !open)}>
+          {isOpen ? <X size={21} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}
+        </button>
+      </div>
+    </header>
+  )
+}
+
+export default Navbar

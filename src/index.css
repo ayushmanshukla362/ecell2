@@ -1,28 +1,117 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-    cursor: none;
-    background-color: black;
-    overflow-x: hidden;
+:root {
+  --ink: #0d0d0b;
+  --ink-soft: #151512;
+  --paper: #f2eee4;
+  --yellow: #f6ca24;
+  --yellow-bright: #ffda3f;
+  --gold: #b88b25;
+  --muted: #a7a59d;
+  --line: rgba(242, 238, 228, 0.16);
+  --line-dark: rgba(13, 13, 11, 0.2);
+  --page-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --content-width: 1180px;
+  --display: 'Space Grotesk', 'Arial Black', sans-serif;
+  --body: 'DM Sans', Arial, sans-serif;
+  --focus-ring: 0 0 0 3px var(--ink), 0 0 0 5px var(--yellow);
 }
 
-a,
-input,
-textarea,
-button {
-    cursor: none;
-    /* Ensure the cursor doesn't change */
+html {
+  background: var(--ink);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    font-family: "Inter";
+  margin: 0;
 }
-.slick-prev:before,.slick-next:before{
-    display: none;
-    cursor: none;
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+::selection {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

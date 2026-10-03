@@ -1,178 +1,36 @@
-import React, { useState } from "react";
-import { GiPolarStar } from "react-icons/gi";
-import { Fade } from "react-awesome-reveal";
+import { useMemo, useState } from 'react'
 
+/* eslint-disable react/prop-types */
 
 const volunteersData = {
-  "2024-2025": [
-  { name: "Satyam Raj Singh", role: "EVENTS AND PLANNING" },
-  { name: "Sahil Kumar Sahu", role: "EVENTS AND PLANNING" },
-  { name: "Ayush Aggarwal", role: "EVENTS AND PLANNING" },
-  { name: "Srishti Yadav", role: "EVENTS AND PLANNING" },
-  { name: "Shreya Singh", role: "EVENTS AND PLANNING" },
-  { name: "Ayush Gautam", role: "EVENTS AND PLANNING" },
-  { name: "Ayush Katiyar", role: "EVENTS AND PLANNING" },
-  { name: "Nishat", role: "EVENTS AND PLANNING" },
-  { name: "Shreya Vishwakarma", role: "EVENTS AND PLANNING" },
-  { name: "Divyanka Pandey", role: "EVENTS AND PLANNING" },
-  { name: "Asad Khan", role: "MARKETING AND OUTREACH" },
-  { name: "Devanshi Srivastava", role: "MARKETING AND OUTREACH" },
-  { name: "Rishi Raj Singh", role: "MARKETING AND OUTREACH" },
-  { name: "Apurv", role: "MARKETING AND OUTREACH" },
-  { name: "Amitabh Chaturvedi", role: "MARKETING AND OUTREACH" },
-  { name: "Aakarsh", role: "FINANCE AND SPONSORSHIP" },
-  { name: "Bulbul Singh", role: "FINANCE AND SPONSORSHIP" },
-  { name: "Gopal Aggarwal", role: "FINANCE AND SPONSORSHIP" },
-  { name: "Shobhit Jain", role: "FINANCE AND SPONSORSHIP" },
-  { name: "Sumit Mishra", role: "FINANCE AND SPONSORSHIP" },
-  { name: "Ridam Baranwal", role: "FINANCE AND SPONSORSHIP" },
-  { name: "Amarjeet Pandey", role: "DIGITAL AND SOCIAL MEDIA" },
-  { name: "Anubhav Singh", role: "DIGITAL AND SOCIAL MEDIA" },
-  { name: "Lakshit Teotia", role: "DIGITAL AND SOCIAL MEDIA" },
-  { name: "Saloni Singh", role: "DIGITAL AND SOCIAL MEDIA" },
-  { name: "Manya Nigam", role: "DIGITAL AND SOCIAL MEDIA" },
-  { name: "Shubham Raj", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Suyash Khare", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Ankush Kumar", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Preetam Ray", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Amit Kumar Gupta", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Devendra Pratap Singh", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Harsh Kumar", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Nandini Goel", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Pratibha Maurya", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Jahanvi Pratap", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Ishan Arora", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-
+  '2024-2025': [
+    ['Satyam Raj Singh', 'Events and Planning'], ['Sahil Kumar Sahu', 'Events and Planning'], ['Ayush Aggarwal', 'Events and Planning'], ['Srishti Yadav', 'Events and Planning'], ['Shreya Singh', 'Events and Planning'], ['Ayush Gautam', 'Events and Planning'], ['Ayush Katiyar', 'Events and Planning'], ['Nishat', 'Events and Planning'], ['Shreya Vishwakarma', 'Events and Planning'], ['Divyanka Pandey', 'Events and Planning'], ['Asad Khan', 'Marketing and Outreach'], ['Devanshi Srivastava', 'Marketing and Outreach'], ['Rishi Raj Singh', 'Marketing and Outreach'], ['Apurv', 'Marketing and Outreach'], ['Amitabh Chaturvedi', 'Marketing and Outreach'], ['Aakarsh', 'Finance and Sponsorship'], ['Bulbul Singh', 'Finance and Sponsorship'], ['Gopal Aggarwal', 'Finance and Sponsorship'], ['Shobhit Jain', 'Finance and Sponsorship'], ['Sumit Mishra', 'Finance and Sponsorship'], ['Ridam Baranwal', 'Finance and Sponsorship'], ['Amarjeet Pandey', 'Digital and Social Media'], ['Anubhav Singh', 'Digital and Social Media'], ['Lakshit Teotia', 'Digital and Social Media'], ['Saloni Singh', 'Digital and Social Media'], ['Manya Nigam', 'Digital and Social Media'], ['Shubham Raj', 'Visual Media and Production'], ['Suyash Khare', 'Visual Media and Production'], ['Ankush Kumar', 'Visual Media and Production'], ['Preetam Ray', 'Visual Media and Production'], ['Amit Kumar Gupta', 'Digital Infrastructure and Development'], ['Devendra Pratap Singh', 'Digital Infrastructure and Development'], ['Harsh Kumar', 'Digital Infrastructure and Development'], ['Nandini Goel', 'Digital Infrastructure and Development'], ['Pratibha Maurya', 'Digital Infrastructure and Development'], ['Jahanvi Pratap', 'Digital Infrastructure and Development'], ['Ishan Arora', 'Digital Infrastructure and Development'],
   ],
- "2025-2026": [
-  // MARKETING AND OUTREACH
-  { name: "Tanya Mishra", role: "MARKETING AND OUTREACH" },
-  { name: "Suyash Dwivedi", role: "MARKETING AND OUTREACH" },
-  { name: "Prateek Singh", role: "MARKETING AND OUTREACH" },
-  { name: "Arnav Garg", role: "MARKETING AND OUTREACH" },
-  { name: "Kashish Mani Tripathi", role: "MARKETING AND OUTREACH" },
-  { name: "Mallika Rathi", role: "MARKETING AND OUTREACH" },
-  { name: "Parth Srivastava", role: "MARKETING AND OUTREACH" },
-  { name: "Anshika Gupta", role: "MARKETING AND OUTREACH" },
-  { name: "Aditya Choudhary", role: "MARKETING AND OUTREACH" },
-  { name: "Asad Khan", role: "MARKETING AND OUTREACH" },
-  { name: "Shobhit", role: "MARKETING AND OUTREACH" },
-  { name: "Devanshi Srivastava", role: "MARKETING AND OUTREACH" },
-  { name: "Rishi Raj Singh Rajpoot", role: "MARKETING AND OUTREACH" },
-  { name: "Bulbul", role: "MARKETING AND OUTREACH" },
+  '2025-2026': [
+    ['Tanya Mishra', 'Marketing and Outreach'], ['Suyash Dwivedi', 'Marketing and Outreach'], ['Prateek Singh', 'Marketing and Outreach'], ['Arnav Garg', 'Marketing and Outreach'], ['Kashish Mani Tripathi', 'Marketing and Outreach'], ['Mallika Rathi', 'Marketing and Outreach'], ['Parth Srivastava', 'Marketing and Outreach'], ['Anshika Gupta', 'Marketing and Outreach'], ['Aditya Choudhary', 'Marketing and Outreach'], ['Asad Khan', 'Marketing and Outreach'], ['Shobhit', 'Marketing and Outreach'], ['Devanshi Srivastava', 'Marketing and Outreach'], ['Rishi Raj Singh Rajpoot', 'Marketing and Outreach'], ['Bulbul', 'Marketing and Outreach'], ['Amit Kumar Gupta', 'Digital Infrastructure and Development'], ['Pratibha Maurya', 'Digital Infrastructure and Development'], ['Jhanvi', 'Digital Infrastructure and Development'], ['Harsh Kumar', 'Digital Infrastructure and Development'], ['Preet Chauhan', 'Digital Infrastructure and Development'], ['Deevonika', 'Digital Infrastructure and Development'], ['Deepak', 'Digital Infrastructure and Development'], ['Suhani Gupta', 'Events and Planning'], ['Abhinay', 'Events and Planning'], ['Aditya Rauniyar', 'Events and Planning'], ['Harshita Dubey', 'Events and Planning'], ['Anushree Mishra', 'Events and Planning'], ['Ashutosh Dev', 'Events and Planning'], ['Kriti Kaushik', 'Events and Planning'], ['Saurav Tyagi', 'Events and Planning'], ['Divyansh', 'Events and Planning'], ['Ayush Aggarwal', 'Events and Planning'], ['Ayush Katiyar', 'Events and Planning'], ['Sahil Sahu', 'Events and Planning'], ['Ritish', 'Digital and Social Media'], ['Anurag Jai Singh', 'Digital and Social Media'], ['Aryan Chaudhary', 'Digital and Social Media'], ['Mahak Khurana', 'Digital and Social Media'], ['Apurv Verma', 'Digital and Social Media'], ['Anvita Shukla', 'Digital and Social Media'], ['Saloni Singh', 'Digital and Social Media'], ['Lakshit', 'Digital and Social Media'], ['Manya', 'Digital and Social Media'], ['Aabhas Viswas', 'Visual Media and Production'], ['Ashish Kashyap', 'Visual Media and Production'], ['Devansh Dev', 'Visual Media and Production'], ['Satyam Yadav', 'Visual Media and Production'], ['Shivani Srivastava', 'Visual Media and Production'], ['Shreya Palak', 'Visual Media and Production'], ['Shubham', 'Visual Media and Production'],
+  ],
+}
 
-  // DIGITAL INFRASTRUCTURE AND DEVELOPMENT
-  { name: "Amit Kumar Gupta", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Pratibha Maurya", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Jhanvi", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Harsh Kumar", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Preet Chauhan", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Deevonika", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-  { name: "Deepak", role: "DIGITAL INFRASTRUCTURE AND DEVELOPMENT" },
-
-  // EVENTS AND PLANNING
-  { name: "Suhani Gupta", role: "EVENTS AND PLANNING" },
-  { name: "Abhinay", role: "EVENTS AND PLANNING" },
-  { name: "Aditya Rauniyar", role: "EVENTS AND PLANNING" },
-  { name: "Harshita Dubey", role: "EVENTS AND PLANNING" },
-  { name: "Anushree Mishra", role: "EVENTS AND PLANNING" },
-  { name: "Ashutosh Dev", role: "EVENTS AND PLANNING" },
-  { name: "Kriti Kaushik", role: "EVENTS AND PLANNING" },
-  { name: "Saurav Tyagi", role: "EVENTS AND PLANNING" },
-  { name: "Divyansh", role: "EVENTS AND PLANNING" },
-  { name: "Ayush Aggarwal", role: "EVENTS AND PLANNING" },
-  { name: "Ayush Katiyar", role: "EVENTS AND PLANNING" },
-  { name: "Sahil Sahu", role: "EVENTS AND PLANNING" },
-
-  // DIGITAL AND SOCIAL MEDIA
-{ name: "Ritish", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Anurag Jai Singh", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Aryan Chaudhary", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Mahak Khurana", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Apurv Verma", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Anvita Shukla", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Saloni Singh", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Lakshit", role: "DIGITAL AND SOCIAL MEDIA" },
-{ name: "Manya", role: "DIGITAL AND SOCIAL MEDIA" },
-
-
-  // VISUAL MEDIA AND PRODUCTION
-  { name: "Aabhas Viswas", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Ashish Kashyap", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Devansh Dev", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Satyam Yadav", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Shivani Srivastava", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Shreya Palak", role: "VISUAL MEDIA AND PRODUCTION" },
-  { name: "Shubham", role: "VISUAL MEDIA AND PRODUCTION" },
-],
-
-};
-
-const Volunteers = ({ currentTeam }) => {
-  const teamVolunteers = volunteersData[currentTeam] || [];
-  const roles = [...new Set(teamVolunteers.map((v) => v.role))];
-  const [selectedRole, setSelectedRole] = useState(null);
+function Volunteers({ currentTeam }) {
+  const [selectedRole, setSelectedRole] = useState('All')
+  const volunteers = useMemo(() => volunteersData[currentTeam] || [], [currentTeam])
+  const roles = useMemo(() => ['All', ...new Set(volunteers.map(([, role]) => role))], [volunteers])
+  const visibleVolunteers = selectedRole === 'All' ? volunteers : volunteers.filter(([, role]) => role === selectedRole)
 
   return (
-    <div className="bg-black text-white min-h-screen py-10 px-4 md:px-20 text-center">
-      {/* Section Header */}
-      <div className="text-center mb-8">
-        <div
-          style={{ backgroundColor: "#141412", color: "#ffde59", border: "1px solid #26250F" }}
-          className="rounded-full px-4 py-1 mb-4 w-fit m-auto"
-        >
-          <Fade cascade>
-            <span className="flex items-center gap-2 text-xl">
-              <GiPolarStar />Team
-            </span>
-          </Fade>
-        </div>
-        <h1 className="text-5xl font-bold">
-          Team <span className="text-[#ffed59]">{currentTeam}</span>
-        </h1>
+    <section className="volunteer-section" aria-labelledby="volunteer-title">
+      <div className="volunteer-section__heading">
+        <div><p className="eyebrow"><span>—</span> / Volunteers</p><h2 id="volunteer-title">The wider<br /><em>crew.</em></h2></div>
+        <p>Every event is a team sport. Browse the volunteers who make the work happen across departments.</p>
       </div>
-
-      {/* Role Filter Buttons */}
-      <div className="flex flex-wrap justify-center gap-4 mb-6">
-        {roles.map((role, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedRole(role)}
-            className={`px-6 py-3 rounded-full shadow-md transition-all duration-300 ${
-              selectedRole === role
-                ? "bg-yellow-500 text-black font-bold"
-                : "bg-gray-800 text-white hover:bg-gray-700"
-            }`}
-          >
-            {role}
-          </button>
-        ))}
-        {selectedRole && (
-          <button
-            onClick={() => setSelectedRole(null)}
-            className="px-6 py-3 rounded-full shadow-md transition-all duration-300 bg-red-600 text-white hover:bg-red-500"
-          >
-            Clear Filter
-          </button>
-        )}
+      <div className="volunteer-filter" role="group" aria-label="Filter volunteers by department">
+        {roles.map((role) => <button key={role} type="button" onClick={() => setSelectedRole(role)} className={selectedRole === role ? 'is-selected' : ''}>{role}</button>)}
       </div>
-
-      {/* Volunteers Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {teamVolunteers
-          .filter((volunteer) => !selectedRole || volunteer.role === selectedRole)
-          .map((volunteer, index) => (
-            <div
-              key={index}
-              className="bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-center items-center text-center border border-gray-700"
-            >
-              <h2 className="text-xl font-semibold mb-2 text-white">{volunteer.name}</h2>
-              <p className="text-yellow-500 text-sm font-medium">{volunteer.role}</p>
-            </div>
-          ))}
+      <div className="volunteer-list">
+        {visibleVolunteers.map(([name, role], index) => <div className="volunteer-row" key={`${name}-${role}`}><span>{String(index + 1).padStart(2, '0')}</span><strong>{name}</strong><em>{role}</em></div>)}
       </div>
-    </div>
-  );
-};
+    </section>
+  )
+}
 
-export default Volunteers;
+export default Volunteers
