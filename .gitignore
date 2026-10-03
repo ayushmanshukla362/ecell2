@@ -11,11 +11,43 @@ node_modules
 dist
 dist-ssr
 *.local
+coverage/
+.cache/
+.vite/
+*.tsbuildinfo
+backups/
+.omnirush/
+
+# Local hosting plans/configuration and Vercel project metadata (not source).
+/.local-deploy/
+/.vercel/
+
+# Generated copies of legacy assets (rebuilt by preclient/prebuild).
+# Keep the shared fallback image; keep src/assets and the seed JSON in Git.
+/public/content-assets/**
+!/public/content-assets/placeholder.svg
 
 # Environment variables
 .env
 .env.*
-!.env.example
+.env.example
+
+# Private runtime data, database backups and browser test output
+backend/data/
+*.sqlite
+*.sqlite-*
+*.sqlite.*
+*.db
+*.db-*
+*.db.*
+playwright-report/
+test-results/
+/__agent__/
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
 
 # Editor directories and files
 .vscode/*

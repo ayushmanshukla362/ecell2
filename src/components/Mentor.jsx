@@ -1,5 +1,6 @@
 import { ArrowUpRight, Quote } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import mentorImage from '../assets/sir.png'
 import Reveal from './Reveal'
 
@@ -25,7 +26,7 @@ function Mentor() {
           </div>
         </Reveal>
         <motion.div className="mentor-section__link" whileHover={{ x: 5 }}>
-          <a href="#connect">Have something in mind? <ArrowUpRight size={17} aria-hidden="true" /></a>
+          <Link to="/contactus#contact-form">Have something in mind? <ArrowUpRight size={17} aria-hidden="true" /></Link>
         </motion.div>
       </div>
     </section>

@@ -1,47 +1,85 @@
-import dotenv from "dotenv";
-dotenv.config();
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import nodemailer from "nodemailer";
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import nodemailer from 'nodemailer'
+import { googleVerifier } from './google.js'
+import { loadConfig, projectRoot } from './config.js'
+import { openStoreAsync, cleanup } from './store.js'
+import { createApp } from './app.js'
 
+// Protect any local SQLite/WAL files created by this process from other OS users.
+process.umask(0o077)
 
-const app = express();
-app.use(cors()); // allow frontend requests
-app.use(bodyParser.json());
+let runtimePromise
+export function getRuntime() {
+  if (!runtimePromise) runtimePromise = initializeRuntime()
+  return runtimePromise
+}
 
-// Create the transporter for email
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER, // Your Gmail
-    pass: process.env.EMAIL_PASS, // App password
-  },
-});
-
-app.post("/contactus", async (req, res) => {
-  const { name, email, message } = req.body;
-
-try {
-    await transporter.sendMail({
-      from: email,
-      to: process.env.EMAIL_USER, // Receiver's email (your Gmail)
-      subject: `New message from ${name}`,
-      text: `
-        Name: ${name}
-        Email: ${email}
-        Message: ${message}
-      `,
-    });
-
-    res.status(200).json({ message: "Message received and email sent!" });
-  } catch (error) {
-    // console.error("Email send error:", error);
-    res.status(500).json({ message: "Failed to send email." });
+async function initializeRuntime() {
+  const config = loadConfig()
+  const db = await openStoreAsync(config)
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: config.emailUser, pass: config.emailPass },
+    connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 15000,
+  })
+  const sendMail = (message) => {
+    if (!config.emailUser || !config.emailPass || !config.emailFrom) throw new Error('Email is not configured.')
+    return transporter.sendMail({ from: config.emailFrom, ...message })
   }
-});
+  const app = createApp({
+    db, config, distPath: path.join(projectRoot, 'dist'),
+    sendCode: (email, code, purpose) => sendMail({
+      to: email,
+      subject: 'Your E-Cell verification code',
+      text: `Your E-Cell ${purpose === 'reset' ? 'password setup / recovery' : 'email signup'} verification code is ${code}.\n\nIt expires in 10 minutes and can only be used once. Enter it on the website to verify your email, then choose your password. Never share this code. If you did not request it, ignore it. Google sign-in does not require an E-Cell email code.`,
+    }),
+    sendContact: ({ name, email, message }) => sendMail({
+      to: config.contactEmail, replyTo: email,
+      subject: `E-Cell website message from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+    }),
+    verifyGoogle: googleVerifier(config.googleClientId),
+  })
+  await cleanup(db)
+  return { app, db, config }
+}
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  // console.log(`Server running on port ${PORT}`);
-});
+// Vercel/other serverless integrations can import either getApp or the
+// handler without opening a connection until the first request.
+export async function getApp() {
+  return (await getRuntime()).app
+}
+export default async function handler(req, res) {
+  return (await getApp())(req, res)
+}
+
+async function startServer() {
+  const runtime = await getRuntime()
+  const { app, db, config } = runtime
+  const cleaner = setInterval(() => { cleanup(db).catch((error) => console.error('Database cleanup failed:', error.message)) }, 60 * 1000).unref()
+  const server = app.listen(config.port, () => {
+    console.log(`E-Cell API listening on port ${config.port}`)
+    if (!config.adminEmails.size) console.warn('ADMIN_EMAILS is empty: no protected owner can manage administrator access.')
+    if (!config.emailUser || !config.emailPass) console.warn('Email credentials are missing: verification email delivery is disabled.')
+  })
+  server.requestTimeout = 30000
+  server.headersTimeout = 15000
+  server.keepAliveTimeout = 5000
+  let stopping = false
+  function shutdown() {
+    if (stopping) return
+    stopping = true
+    clearInterval(cleaner)
+    const deadline = setTimeout(() => { server.closeAllConnections(); process.exit(1) }, 15000).unref()
+    server.close(() => { clearTimeout(deadline); db.close().finally(() => process.exit(0)) })
+  }
+  process.on('SIGTERM', shutdown)
+  process.on('SIGINT', shutdown)
+}
+
+const entrypoint = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+if (entrypoint) startServer().catch((error) => {
+  console.error(`E-Cell server failed to start: ${error.message}`)
+  process.exitCode = 1
+})

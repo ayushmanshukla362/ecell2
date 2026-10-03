@@ -1,12 +1,16 @@
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { teamData } from '../DataTeam'
 import Reveal from '../Reveal'
+import { useContent } from '../../content/ContentContext'
+import ContentStatus from '../../content/ContentStatus'
+import ContentImage from '../../content/ContentImage'
+import { compareContent } from '../../content/contentUtils'
 
 function TeamPreviewSection() {
-  const team = teamData['2025-2026'].executives
+  const { members, loading, error, retry } = useContent()
+  const team = members.filter((member) => member.featured).sort(compareContent)
   const lead = team[0]
-  const supportingMembers = team.slice(1, 4)
+  const supportingMembers = team.slice(1)
 
   return (
     <section id="team" className="site-section team-preview" aria-labelledby="team-preview-title">
@@ -23,10 +27,11 @@ function TeamPreviewSection() {
         </Reveal>
       </div>
 
-      <div className="team-preview__layout">
+      <ContentStatus loading={loading} error={error} retry={retry} empty={!team.length} emptyMessage="No featured team members right now. Meet the full team in our roster." />
+      {lead && <div className="team-preview__layout">
         <Reveal className="team-lead">
           <div className="team-portrait team-portrait--lead">
-            <img src={lead.image} alt={lead.name} width="600" height="600" loading="lazy" />
+            <ContentImage src={lead.image} alt={lead.name} width="600" height="600" loading="lazy" />
             <span className="team-portrait__index">01</span>
           </div>
           <div className="team-person-line">
@@ -37,9 +42,9 @@ function TeamPreviewSection() {
 
         <div className="team-supporting">
           {supportingMembers.map((member, index) => (
-            <Reveal key={member.name} delay={0.08 + index * 0.07} className="team-supporting__member">
+            <Reveal key={member.id} delay={0.08 + index * 0.07} className="team-supporting__member">
               <div className="team-portrait">
-                <img src={member.image} alt={member.name} width="500" height="500" loading="lazy" />
+                <ContentImage src={member.image} alt={member.name} width="500" height="500" loading="lazy" />
                 <span className="team-portrait__index">0{index + 2}</span>
               </div>
               <div className="team-person-line">
@@ -49,7 +54,7 @@ function TeamPreviewSection() {
             </Reveal>
           ))}
         </div>
-      </div>
+      </div>}
     </section>
   )
 }
