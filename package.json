@@ -71,7 +71,7 @@
     "vite": "^6.4.3"
   },
   "description": "Welcome to the official repository for the **Entrepreneurship Cell (E-Cell) of ABES Engineering College**. This project hosts the code for the official website of E-Cell ABESEC, which showcases our activities, events, and opportunities for aspiring entrepreneurs.",
-  "main": "firebase.js",
+  "main": "backend/server.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Pratibha-Maurya23/ecell-Website-v2.git"
