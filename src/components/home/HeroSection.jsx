@@ -32,7 +32,7 @@ function HeroSection() {
         <div className="hero-kicker">
           <span className="hero-kicker__line" />
           <span>Entrepreneurship Cell / ABES Engineering College</span>
-          <span className="hero-kicker__year">25—26</span>
+          {/* <span className="hero-kicker__year">25—26</span> */}
         </div>
 
         <div className="hero-layout">
