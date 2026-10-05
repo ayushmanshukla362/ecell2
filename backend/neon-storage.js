@@ -75,6 +75,10 @@ function makeClient(config) {
     region: config.storage.region,
     endpoint: config.storage.endpoint,
     forcePathStyle: true,
+    // Presigned browser PUTs do not have a body when they are signed. Newer
+    // AWS SDK versions can otherwise add a checksum for that empty body to the
+    // URL, which Neon correctly rejects when the browser sends the image.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
     credentials: { accessKeyId: config.storage.accessKeyId, secretAccessKey: config.storage.secretAccessKey },
   })
 }

@@ -4,18 +4,34 @@ import { api } from '../lib/api'
 
 const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
 const maxBytes = 8 * 1024 * 1024
+const extensionTypes = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }
+
+function fileType(file) {
+  if (allowedTypes.includes(file.type)) return file.type
+  const extension = file.name.split('.').pop()?.toLowerCase()
+  return extensionTypes[extension] || ''
+}
 
 async function uploadFile(file) {
-  const setup = await api('/api/admin/uploads/init', { method: 'POST', body: { name: file.name.slice(0, 255), type: file.type, size: file.size } })
-  if (setup?.mode === 'local') return api('/api/admin/uploads', { method: 'POST', body: file })
+  const type = fileType(file)
+  const setup = await api('/api/admin/uploads/init', { method: 'POST', body: { name: file.name.slice(0, 255), type, size: file.size } })
+  if (setup?.mode === 'local') return api('/api/admin/uploads', { method: 'POST', body: new Blob([file], { type }) })
   if (setup?.mode !== 'neon-object-storage' || !setup.uploadUrl || !setup.uploadId) throw new Error('The image upload service is not configured. Please contact the site administrator.')
-  const response = await fetch(setup.uploadUrl, { method: 'PUT', headers: setup.headers || { 'Content-Type': file.type }, body: file })
-  if (!response.ok) throw new Error('The image could not be transferred to storage. Please retry.')
+  let response
+  try {
+    response = await fetch(setup.uploadUrl, { method: 'PUT', mode: 'cors', credentials: 'omit', headers: setup.headers || { 'Content-Type': type }, body: file })
+  } catch {
+    throw new Error('The image could not reach storage. Check the storage bucket CORS setting for this site, then retry.')
+  }
+  if (!response.ok) {
+    const detail = (await response.text().catch(() => '')).replace(/\s+/g, ' ').trim().slice(0, 180)
+    throw new Error(`Storage rejected the image (${response.status}${detail ? `: ${detail}` : ''}). Please retry.`)
+  }
   return api('/api/admin/uploads/finalize', { method: 'POST', body: { uploadId: setup.uploadId } })
 }
 
 function fileError(file) {
-  if (!allowedTypes.includes(file.type)) return 'Choose a JPEG, PNG, or WebP image.'
+  if (!fileType(file)) return 'Choose a JPEG, PNG, or WebP image.'
   if (!file.size) return 'This file is empty. Choose another image.'
   if (file.size > maxBytes) return 'This image exceeds the 8 MiB limit.'
   return ''
