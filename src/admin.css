@@ -102,6 +102,44 @@
 .admin-access-list li > div { min-width: 0; flex: 1 1 240px; }
 .admin-access-list h3 { overflow-wrap: anywhere; font-size: .95rem; }
 .admin-access-list p { font-size: .78rem; color: var(--muted); line-height: 1.7; margin-top: .5rem; }
+.admin-user-picker { margin-top: 1.75rem; padding: clamp(1rem, 2vw, 1.5rem); border: 1px solid var(--line); background: var(--ink); min-width: 0; }
+.admin-picker-heading { display: flex; align-items: flex-start; gap: .75rem; }
+.admin-picker-heading > svg { color: var(--yellow); flex-shrink: 0; margin-top: .1rem; }
+.admin-picker-heading h3 { font-size: 1rem; }
+.admin-picker-heading p { color: var(--muted); font-size: .78rem; line-height: 1.7; margin-top: .4rem; max-width: 54rem; }
+.admin-picker-filters { margin-top: 1.25rem; }
+.admin-picker-search { position: relative; }
+.admin-picker-search > svg { position: absolute; top: 15px; left: .85rem; color: var(--muted); pointer-events: none; }
+.admin-picker-search input { padding-left: 2.4rem; }
+.admin-picker-summary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin: 1.25rem 0; }
+.admin-picker-summary p { font-size: .85rem; line-height: 1.6; }
+.admin-picker-summary span, .admin-bulk-review span { display: block; color: var(--muted); font-size: .75rem; line-height: 1.7; }
+.admin-picker-selected { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; margin: 1rem 0; max-height: 200px; overflow-y: auto; }
+.admin-picker-selected li { display: flex; align-items: center; gap: .5rem; border: 1px solid var(--line); background: var(--ink-soft); padding: .4rem .6rem; min-width: 0; max-width: 100%; }
+.admin-picker-selected span { font-size: .75rem; min-width: 0; overflow-wrap: anywhere; }
+.admin-picker-selected small { display: block; font-size: .7rem; color: var(--muted); }
+.admin-picker-selected button { display: flex; align-items: center; justify-content: center; color: var(--paper); background: transparent; border: 0; min-width: 32px; min-height: 32px; }
+.admin-picker-select-all { display: flex; align-items: center; gap: .75rem; padding: .8rem 1rem; background: var(--ink-soft); border: 1px solid var(--line); font-size: .8rem; }
+.admin-picker-select-all span { margin-left: auto; font-size: .7rem; color: var(--muted); }
+.admin-user-picker input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--yellow); flex-shrink: 0; }
+.admin-picker-results { list-style: none; padding: 0; margin: 0; max-height: 420px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-top: 0; }
+.admin-picker-results li + li { border-top: 1px solid var(--line); }
+.admin-picker-results li.is-selected { background: var(--ink-soft); box-shadow: inset 3px 0 var(--yellow); }
+.admin-picker-results label { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem; padding: .9rem 1rem; cursor: pointer; }
+.admin-picker-avatar { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--ink-soft); color: var(--yellow); border: 1px solid var(--line); border-radius: 50%; flex-shrink: 0; font-size: .85rem; }
+.admin-picker-person { display: grid; gap: .2rem; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.admin-picker-person strong { font-size: .85rem; font-weight: 600; }
+.admin-picker-person > span { font-size: .78rem; color: var(--muted); }
+.admin-picker-person small { color: var(--muted); font-size: .7rem; line-height: 1.6; }
+.admin-picker-reason { color: var(--muted); font-size: .7rem; border: 1px solid var(--line); padding: .25rem .45rem; }
+.admin-picker-empty { text-align: center; padding: 2rem 1rem; border: 1px dashed var(--line); color: var(--muted); }
+.admin-picker-empty svg { margin: 0 auto .6rem; }
+.admin-picker-empty h4 { color: var(--paper); font-size: .95rem; }
+.admin-picker-empty p { margin-top: .5rem; font-size: .8rem; line-height: 1.7; }
+.admin-picker-pagination { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-top: 1rem; }
+.admin-picker-pagination span { font-size: .75rem; color: var(--muted); }
+.admin-bulk-review { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; padding: 1rem; border: 1px solid var(--line); background: var(--ink-soft); margin-top: 1.25rem; }
+.admin-bulk-review strong { display: block; font-size: .85rem; line-height: 1.7; overflow-wrap: anywhere; }
 .admin-page :is(button, input, textarea, select, summary):focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
 @media (max-width: 760px) {
   .admin-page { padding-top: 115px; padding-bottom: 60px; }
@@ -118,6 +156,11 @@
   .admin-access-form .admin-field, .admin-access-form > button { width: 100%; }
   .admin-access-form > button { margin-top: 0; }
   .admin-panel-tabs > button { flex-basis: 100%; }
+  .admin-picker-filters label { flex-basis: 100%; }
+  .admin-picker-results label { gap: .6rem; padding: .8rem; }
+  .admin-picker-avatar { display: none; }
+  .admin-picker-reason { margin-left: 1.7rem; }
+  .admin-access-bulk .admin-bulk-review > button { width: 100%; }
 }
 @media (max-width: 420px) {
   .admin-filters label { min-width: 100%; }

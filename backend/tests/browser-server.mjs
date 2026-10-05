@@ -18,7 +18,7 @@ const config = loadConfig({
   // Production rate-limit thresholds remain unchanged and are tested separately.
   TRUST_PROXY_HOPS: '1',
   GOOGLE_CLIENT_ID: 'isolated-browser-provider-mock.apps.googleusercontent.com',
-  ADMIN_EMAILS: 'admin+desktop@example.test,admin+mobile@example.test,manager+desktop@example.test,manager+mobile@example.test',
+  ADMIN_EMAILS: 'admin+desktop@example.test,admin+mobile@example.test,manager+desktop@example.test,manager+mobile@example.test,bulkowner+desktop@example.test,bulkowner+mobile@example.test',
   UPLOAD_DIR: path.join(folder, 'uploads'),
 })
 const db = openStore(path.join(folder, 'test.sqlite'))

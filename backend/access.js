@@ -1,4 +1,5 @@
 import { emailValue, httpError, rateLimit } from './security.js'
+import { selectedUsers } from './user-selection.js'
 
 export function accessFor(db, config, email) {
   const isOwner = config.adminEmails.has(email)
@@ -38,6 +39,24 @@ export function installAccess(app, { db, config, now = Date.now }) {
       await db.prepare('INSERT INTO audit_log(actor_id,action,kind,item_id,created_at) VALUES(?,?,?,?,?)').run(req.user.id, 'grant', 'admin-access', email, now())
     })
     res.status(201).json({ admin: await view(email, 'database') })
+  })
+  app.post('/api/admin/access/bulk', async (req, res) => {
+    await rateLimit(db, `access:${req.user.id}`, 30, 60 * 60 * 1000, now())
+    const admins = [], skipped = []
+    await db.transaction(async () => {
+      await assertAdminSession(db, config, req, now())
+      const users = await selectedUsers(db, req.body.userIds)
+      const existing = new Set((await db.prepare(`SELECT email FROM admin_grants WHERE email IN (${users.map(() => '?').join(',')})`).all(...users.map((user) => user.email))).map((row) => row.email))
+      for (const user of users) {
+        if (config.adminEmails.has(user.email) || existing.has(user.email)) { skipped.push(user); continue }
+        admins.push({ email: user.email, role: 'admin', source: 'database', joined: true, name: user.name })
+      }
+      if (admins.length) {
+        await db.prepare(`INSERT INTO admin_grants(email,granted_by,created_at) VALUES ${admins.map(() => '(?,?,?)').join(',')}`).run(...admins.flatMap((admin) => [admin.email, req.user.id, now()]))
+        await db.prepare(`INSERT INTO audit_log(actor_id,action,kind,item_id,created_at) VALUES ${admins.map(() => '(?,?,?,?,?)').join(',')}`).run(...admins.flatMap((admin) => [req.user.id, 'grant', 'admin-access', admin.email, now()]))
+      }
+    })
+    res.status(201).json({ admins, skipped })
   })
   app.delete('/api/admin/access/:email', async (req, res) => {
     await rateLimit(db, `access:${req.user.id}`, 30, 60 * 60 * 1000, now())

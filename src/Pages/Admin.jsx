@@ -1,12 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowUpRight, Pencil, Plus, RefreshCw, Trash2, X } from 'lucide-react'
+import { ArrowUpRight, Pencil, Plus, RefreshCw, Trash2, Users, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext'
 import ImageField from '../admin/ImageField'
 import MediaLibrary from '../admin/MediaLibrary'
 import AccessPanel from '../admin/AccessPanel'
+import BulkMemberEditor from '../admin/BulkMemberEditor'
 import { useContent } from '../content/ContentContext'
 import ContentImage from '../content/ContentImage'
 import { compareContent, contentBatches, contentYears, MEMBER_GROUPS, STORY_FIELDS } from '../content/contentUtils'
@@ -75,6 +76,7 @@ function ContentEditor({ collection, item, busy, onSave, onCancel }) {
         <legend className="sr-only">{isMember ? 'Member' : 'Event'} details</legend>
         <div className="admin-form-grid">
           {isMember ? <>
+            {item?.account && <div className="admin-field admin-field--wide"><label htmlFor="member-account">Linked user account</label><input id="member-account" readOnly value={item.account.email} /><small>This profile is linked to a registered user. Their email is visible only in the admin panel.</small></div>}
             {field('name', 'Name', { required: true, maxLength: 120 })}
             {field('role', values.group === 'volunteers' ? 'Department / role' : 'Role', { maxLength: 160 })}
             {field('batch', 'Batch', { required: true, placeholder: '2025-2026', hint: 'Two consecutive years: YYYY-YYYY.' })}
@@ -155,7 +157,7 @@ function Admin() {
   const period = periods.includes(requestedPeriod) ? requestedPeriod : 'all'
   const visible = content[collection].filter((item) => (period === 'all' || String(member ? item.batch : item.year) === period)
     && (!member || group === 'all' || item.group === group)
-    && `${item.title || item.name} ${item.role || item.category || ''}`.toLowerCase().includes(search.trim().toLowerCase())).sort(compareContent)
+    && `${item.title || item.name} ${item.role || item.category || ''} ${item.account?.email || ''}`.toLowerCase().includes(search.trim().toLowerCase())).sort(compareContent)
 
   const openEditor = (item = null) => { setEditor({ item }); setActionError(''); setNotice('') }
   const save = async (body) => {
@@ -171,6 +173,23 @@ function Admin() {
       setEditor(null)
       const refreshed = await refreshPublic()
       setNotice(refreshed ? 'Saved and published successfully.' : 'Saved successfully. The public preview could not refresh; retry loading content on the public page.')
+    } finally { mutation.current = false; setBusy(false) }
+  }
+  const addUsers = async (body) => {
+    if (mutation.current) return
+    mutation.current = true
+    setBusy(true)
+    setActionError('')
+    try {
+      const result = await api('/api/admin/members/bulk', { method: 'POST', body })
+      if (!Array.isArray(result?.items) || !Array.isArray(result.skipped)) throw new Error('The server response was incomplete. Reload content before retrying.')
+      setContent((current) => ({ ...current, members: [...current.members, ...result.items.filter((item) => !current.members.some((member) => member.id === item.id))] }))
+      setEditor(null)
+      setPeriod(body.batch)
+      setGroup('all')
+      setSearch('')
+      const refreshed = await refreshPublic()
+      setNotice(`Added ${result.items.length} ${result.items.length === 1 ? 'member' : 'members'} to ${body.batch}.${result.skipped.length ? ` ${result.skipped.length} already in this batch were skipped.` : ''}${!refreshed ? ' Reload the public page to refresh its preview.' : ''}`)
     } finally { mutation.current = false; setBusy(false) }
   }
   const remove = async (item) => {
@@ -201,16 +220,16 @@ function Admin() {
     {panel === 'content' && <>
     <div className="admin-toolbar">
       <div className="admin-tabs" role="group" aria-label="Content collection">{['events', 'members'].map((name) => <button type="button" key={name} aria-pressed={collection === name} className={collection === name ? 'is-selected' : ''} disabled={busy || Boolean(editor)} onClick={() => switchCollection(name)}>{name === 'events' ? 'Events' : 'Team & volunteers'} <span>{content[name].length}</span></button>)}</div>
-      <div className="admin-toolbar__actions"><button className="admin-button" type="button" disabled={disabled || Boolean(editor)} onClick={load}><RefreshCw size={16} aria-hidden="true" /> Reload</button><button className="admin-button admin-button--primary" type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => openEditor()}><Plus size={17} aria-hidden="true" /> Add {member ? 'member' : 'event'}</button></div>
+      <div className="admin-toolbar__actions"><button className="admin-button" type="button" disabled={disabled || Boolean(editor)} onClick={load}><RefreshCw size={16} aria-hidden="true" /> Reload</button><button className={`admin-button ${member ? '' : 'admin-button--primary'}`} type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => openEditor()}><Plus size={17} aria-hidden="true" /> Add {member ? 'member' : 'event'}</button>{member && <button className="admin-button admin-button--primary" type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => { setEditor({ bulk: true }); setActionError(''); setNotice('') }}><Users size={17} aria-hidden="true" /> Add users</button>}</div>
     </div>
     {loading && <p className="admin-alert" role="status">Loading content…</p>}
     {loadError && <div className="admin-alert admin-alert--error" role="alert"><p>{loadError}</p><button className="admin-button" type="button" disabled={disabled} onClick={load}>Try again</button></div>}
     {actionError && <p className="admin-alert admin-alert--error" role="alert">{actionError}</p>}
     {notice && <p className="admin-alert admin-alert--success" role="status">{notice}</p>}
-    {editor && <ContentEditor key={`${collection}-${editor.item?.id || 'new'}`} collection={collection} item={editor.item} busy={busy} onSave={save} onCancel={() => setEditor(null)} />}
+    {editor && (editor.bulk ? <BulkMemberEditor batch={period} group={group} batches={contentBatches(content.members)} busy={busy} onSave={addUsers} onCancel={() => setEditor(null)} /> : <ContentEditor key={`${collection}-${editor.item?.id || 'new'}`} collection={collection} item={editor.item} busy={busy} onSave={save} onCancel={() => setEditor(null)} />)}
     <section className="admin-list" aria-label={member ? 'Team members' : 'Events'} aria-busy={disabled}>
       <div className="admin-filters">
-        <label>Search<input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={member ? 'Name or role' : 'Title or category'} /></label>
+        <label>Search<input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={member ? 'Name, email or role' : 'Title or category'} /></label>
         <label>{member ? 'Batch' : 'Year'}<select value={period} onChange={(event) => setPeriod(event.target.value)}><option value="all">All {member ? 'batches' : 'years'}</option>{periods.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
         {member && <label>Group<select value={group} onChange={(event) => setGroup(event.target.value)}><option value="all">All groups</option>{MEMBER_GROUPS.map((value) => <option key={value} value={value}>{groupLabels[value]}</option>)}</select></label>}
       </div>
@@ -218,7 +237,7 @@ function Admin() {
       {!loading && !loadError && visible.length === 0 && <div className="admin-empty"><h2>{content[collection].length ? 'No matching items.' : 'A fresh start.'}</h2><p>{content[collection].length ? 'Try a different filter or search.' : `Add your first ${member ? 'member' : 'event'} to publish it on the site.`}</p></div>}
       <div className="admin-records">{visible.map((item) => <article className="admin-record" key={item.id}>
         <ContentImage className="admin-record__image" src={item.listingImage || item.image} alt="" width="90" height="90" loading="lazy" />
-        <div className="admin-record__copy"><h2>{item.title || item.name}</h2><p>{member ? `${item.batch} · ${groupLabels[item.group]}${item.role ? ` · ${item.role}` : ''}` : `${item.year} · ${item.date}${item.category ? ` · ${item.category}` : ''}`}</p><div className="admin-record__tags">{item.featured && <span className="admin-badge">Featured</span>}<span>Order {item.order}</span></div></div>
+        <div className="admin-record__copy"><h2>{item.title || item.name}</h2><p>{member ? `${item.batch} · ${groupLabels[item.group]}${item.role ? ` · ${item.role}` : ''}` : `${item.year} · ${item.date}${item.category ? ` · ${item.category}` : ''}`}</p>{item.account && <p>{item.account.email}</p>}<div className="admin-record__tags">{item.featured && <span className="admin-badge">Featured</span>}<span>Order {item.order}</span></div></div>
         <div className="admin-record__actions"><button className="admin-button" type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} aria-label={`Edit ${item.title || item.name}`} onClick={() => openEditor(item)}><Pencil size={15} aria-hidden="true" /> Edit</button><button className="admin-button admin-button--danger" type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} aria-label={`Delete ${item.title || item.name}`} onClick={() => remove(item)}><Trash2 size={15} aria-hidden="true" /> Delete</button></div>
       </article>)}</div>
     </section>

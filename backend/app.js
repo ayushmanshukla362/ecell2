@@ -6,6 +6,7 @@ import path from 'node:path'
 import { asStore } from './database.js'
 import { installAuth } from './auth.js'
 import { installAccess, assertAdminSession } from './access.js'
+import { getAdminContent, installUsers } from './users.js'
 import { installUploads, isUploadRequest, IMAGE_TYPES, assertUploadsExist } from './uploads.js'
 import { installNeonUploads, assertObjectUploadsExist } from './neon-storage.js'
 import { eventSlug, getContent } from './store.js'
@@ -59,9 +60,10 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
   app.get('/api/content', async (req, res) => res.json(await getContent(store)))
   app.use('/api/admin', requireAdmin)
   installAccess(app, { db: store, config, now })
+  installUsers(app, { db: store, config, now })
   if (useLocalMedia) installUploads(app, { db: localDb, config, now })
   if (useNeonMedia) installNeonUploads(app, { db: store, config, now, ...(storageClient ? { s3: storageClient } : {}), ...(storageSign ? { sign: storageSign } : {}) })
-  app.get('/api/admin/content', async (req, res) => res.json(await getContent(store)))
+  app.get('/api/admin/content', async (req, res) => res.json(await getAdminContent(store)))
   const audit = store.prepare('INSERT INTO audit_log(actor_id,action,kind,item_id,created_at) VALUES(?,?,?,?,?)')
   for (const kind of ['events', 'members']) {
     for (const method of ['post', 'put']) app[method](`/api/admin/${kind}${method === 'put' ? '/:id' : ''}`, async (req, res) => {
@@ -76,8 +78,17 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
       const item = { ...value, id }
       await store.transaction(async () => {
         await assertAdminSession(store, config, req, now())
+        if (kind === 'members' && method === 'put') {
+          const linked = await store.prepare('SELECT user_id FROM member_accounts WHERE member_id = ?').get(id)
+          if (linked) {
+            if (await store.prepare('SELECT 1 FROM member_accounts WHERE user_id = ? AND batch = ? AND member_id != ?').get(linked.user_id, value.batch, id)) throw httpError(409, 'This user is already a member of that batch.')
+            await store.prepare('UPDATE member_accounts SET batch = ? WHERE member_id = ?').run(value.batch, id)
+            const account = await store.prepare('SELECT id,email FROM users WHERE id = ?').get(linked.user_id)
+            if (account) item.account = account
+          }
+        }
         await store.prepare('INSERT INTO content(kind,id,slug,data) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET slug=excluded.slug,data=excluded.data')
-          .run(kind, id, slug, JSON.stringify(item))
+          .run(kind, id, slug, JSON.stringify({ ...value, id }))
         await audit.run(req.user.id, method === 'post' ? 'create' : 'update', kind, id, now())
       })
       res.status(method === 'post' ? 201 : 200).json({ item })
@@ -86,6 +97,7 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
       await rateLimit(store, `admin:${req.user.id}`, 120, 60 * 1000, now())
       await store.transaction(async () => {
         await assertAdminSession(store, config, req, now())
+        if (kind === 'members') await store.prepare('DELETE FROM member_accounts WHERE member_id = ?').run(req.params.id)
         const result = await store.prepare('DELETE FROM content WHERE kind = ? AND id = ?').run(kind, req.params.id)
         if (!result.changes) throw httpError(404, 'This item no longer exists.')
         await audit.run(req.user.id, 'delete', kind, req.params.id, now())

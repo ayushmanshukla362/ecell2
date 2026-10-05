@@ -34,6 +34,10 @@ export const POSTGRES_SCHEMA = [
     kind TEXT NOT NULL CHECK(kind IN ('events','members')), id TEXT NOT NULL,
     slug TEXT, data TEXT NOT NULL, PRIMARY KEY(kind, id), UNIQUE(kind, slug)
   )`,
+  `CREATE TABLE IF NOT EXISTS member_accounts (
+    member_id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    batch TEXT NOT NULL, UNIQUE(user_id, batch)
+  )`,
   `CREATE TABLE IF NOT EXISTS admin_grants (
     email TEXT PRIMARY KEY, granted_by TEXT NOT NULL, created_at BIGINT NOT NULL
   )`,

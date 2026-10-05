@@ -50,7 +50,7 @@ test('Postgres store binds parameters and keeps transaction queries on one clien
 
 test('Postgres schema contains every persistence table without contacting a database', () => {
   const schema = POSTGRES_SCHEMA.join('\n')
-  for (const table of ['users', 'sessions', 'challenges', 'auth_grants', 'rate_limits', 'oauth_nonces', 'content', 'admin_grants', 'uploads', 'metadata', 'audit_log']) assert.match(schema, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}\\b`))
+  for (const table of ['users', 'sessions', 'challenges', 'auth_grants', 'rate_limits', 'oauth_nonces', 'content', 'member_accounts', 'admin_grants', 'uploads', 'metadata', 'audit_log']) assert.match(schema, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}\\b`))
 })
 
 test('DATABASE_URL selects cloud mode without requiring local runtime directories', () => {

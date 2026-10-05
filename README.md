@@ -82,6 +82,13 @@ Google credentials are verified on the server for signature, audience, issuer, e
 
 There is no default admin password or pre-created administrator. User passwords are stored as salted scrypt hashes in the private database, not as environment variables or plaintext. Google-only users may optionally create a password through the verified password-reset flow; their email is prefilled on the account page. A password reset also revokes all prior sessions. Same-email linking is limited to Google-authoritative verified Gmail/Workspace identities. Sessions have an absolute **8-hour** lifetime; logout revokes the current session.
 
+### Add registered users in bulk
+
+- **Content → Team & volunteers → Add users:** choose a destination batch (for example `2025-2026`), group, and optional shared role, then select users to publish their member profiles. Individual roles, portraits, and social links can be edited afterward. **Add member** supports manually entered profiles.
+- **Access management:** owners can select multiple registered users and authorize them in one operation. The exact-email form also supports people who have not signed up yet.
+- Both user pickers support case-insensitive email/name fragments of **2 or more characters**, team-batch and signup-year filters, page selection, and up to **100 users** per operation. Selection is preserved across searches and pages. Team-batch filters use saved account-linked memberships; signup year refers to account registration. Existing manually entered profiles are not automatically linked to accounts.
+- A user can have one linked profile per batch. Existing memberships or access grants are skipped safely, and each bulk change is transactional and audited. Account emails appear only in authenticated admin responses, not public team content.
+
 After updating the authentication code or environment configuration, restart the backend (`Ctrl+C`, then `npm run dev` locally) and refresh the browser. Existing accounts and content are preserved; the setup-proof table is added automatically. Codes issued by the old all-flows-OTP implementation cannot complete the new flow—request a fresh code. Admin users should protect their Google account with 2-Step Verification; the site's password-only login is not multi-factor authentication.
 
 ## Content and images
