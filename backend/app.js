@@ -1,7 +1,8 @@
 import express from 'express'
+import compression from 'compression'
 import helmet from 'helmet'
 import { randomUUID } from 'node:crypto'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { asStore } from './database.js'
 import { installAuth } from './auth.js'
@@ -24,6 +25,7 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
   const app = express()
   app.disable('x-powered-by')
   app.set('trust proxy', config.proxyHops)
+  app.use(compression({ threshold: 1024 }))
   app.use(helmet({
     crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     contentSecurityPolicy: { directives: {
@@ -41,7 +43,8 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   }))
   app.use(['/api', '/contactus'], (req, res, next) => {
-    res.set('Cache-Control', 'no-store')
+    const publicContent = req.method === 'GET' && req.originalUrl.split('?')[0] === '/api/content'
+    res.set('Cache-Control', publicContent ? 'public, max-age=60, stale-while-revalidate=300' : 'no-store')
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       if (req.get('Origin') !== config.origin) return next(httpError(403, 'Request origin is not allowed.'))
       if (isUploadRequest(req)) {
@@ -111,12 +114,22 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
     const message = req.body.message
     if (typeof message !== 'string' || message.trim().length < 10 || message.length > 5000) throw httpError(400, 'Message must be between 10 and 5,000 characters.')
     try { await sendContact({ name, email, message: message.trim() }) }
-    catch { throw httpError(503, 'Your message could not be sent. Please try again later.') }
+    catch (error) {
+      // Keep SMTP details away from visitors, but leave a safe diagnostic in
+      // the hosting logs so a missing app password or rejected sender can be
+      // fixed without guessing.
+      console.error('Contact email delivery failed:', error.code || error.message || 'unknown mail error')
+      throw httpError(503, 'Your message could not be sent. Please try again later.')
+    }
     res.json({ message: 'Your message has been sent. Thank you for reaching out!' })
   })
   app.use('/api', (req, res) => res.status(404).json({ message: 'API endpoint not found.' }))
   if (distPath && existsSync(path.join(distPath, 'index.html'))) {
-    app.use(express.static(distPath, { index: false }))
+    const indexPath = path.join(distPath, 'index.html')
+    const indexDocument = readFileSync(indexPath, 'utf8')
+    app.use('/assets', express.static(path.join(distPath, 'assets'), { maxAge: '1y', immutable: true }))
+    app.use('/content-assets', express.static(path.join(distPath, 'content-assets'), { maxAge: '1d' }))
+    app.use(express.static(distPath, { index: false, maxAge: '1h' }))
     app.use(['/assets', '/content-assets'], (req, res) => res.status(404).end())
     app.get('/{*splat}', async (req, res) => {
       const route = req.path.replace(/\/$/, '') || '/'
@@ -127,7 +140,11 @@ export function createApp({ db, config, sendCode, sendContact, verifyGoogle, now
         try { slug = decodeURIComponent(route.slice('/events/'.length)) } catch { slug = '' }
         eventExists = Boolean(await store.prepare("SELECT 1 FROM content WHERE kind = 'events' AND (slug = ? OR (? = 'navy-visit-2023' AND id = '2'))").get(slug, slug))
       }
-      res.status(known || eventExists ? 200 : 404).sendFile(path.join(distPath, 'index.html'))
+      const needsBootstrap = route === '/' || route === '/teams' || route === '/events' || route.startsWith('/events/')
+      const snapshot = needsBootstrap ? JSON.stringify(await getContent(store)).replace(/[<>&\u2028\u2029]/g, (character) => ({ '<': '\\u003c', '>': '\\u003e', '&': '\\u0026', '\u2028': '\\u2028', '\u2029': '\\u2029' })[character]) : ''
+      const html = snapshot ? indexDocument.replace('</head>', `<script type="application/json" id="ecell-content-bootstrap">${snapshot}</script></head>`) : indexDocument
+      res.set('Cache-Control', 'no-cache, must-revalidate')
+      res.status(known || eventExists ? 200 : 404).type('html').send(html)
     })
   }
   // Never return SQL errors, tokens, credentials, or stack traces to the browser.

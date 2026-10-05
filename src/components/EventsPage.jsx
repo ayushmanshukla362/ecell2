@@ -33,7 +33,7 @@ function EventsPage() {
         <ContentStatus loading={loading} error={error} retry={retry} empty={!events.length} emptyMessage="No events have been published yet. Check back soon." />
         <div className="archive-results" aria-live="polite" aria-busy={loading}>
           <AnimatePresence mode="wait">
-            <motion.div key={selectedYear} className="archive-grid" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35 }}>
+            <motion.div key={selectedYear} className="archive-grid" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.24 }}>
               {eventsForYear.map((event, index) => <EventCard key={event.id} event={event} index={index} />)}
             </motion.div>
           </AnimatePresence>

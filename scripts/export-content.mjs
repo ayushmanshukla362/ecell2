@@ -5,6 +5,7 @@ import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises'
 import { dirname, resolve, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
+import sharp from 'sharp'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const seedPath = resolve(root, 'backend/seed-content.json')
@@ -72,7 +73,13 @@ for (const url of assetUrls) {
   const destination = resolve(publicRoot, path)
   if (!source.startsWith(`${assetsRoot}${sep}`) || !destination.startsWith(`${publicRoot}${sep}`)) throw new Error('Invalid asset path')
   await mkdir(dirname(destination), { recursive: true })
-  await copyFile(source, destination)
+  if (/\.(jpe?g|png|webp)$/i.test(path)) {
+    const format = path.split('.').pop().toLowerCase()
+    const image = sharp(source, { failOn: 'none' }).rotate().resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
+    if (format === 'jpg' || format === 'jpeg') await image.jpeg({ quality: 80, mozjpeg: true, progressive: true }).toFile(destination)
+    else if (format === 'png') await image.png({ compressionLevel: 9, adaptiveFiltering: true, effort: 10 }).toFile(destination)
+    else await image.webp({ quality: 80, effort: 4 }).toFile(destination)
+  } else await copyFile(source, destination)
 }
 await mkdir(dirname(seedPath), { recursive: true })
 await writeFile(seedPath, `${JSON.stringify(seed, null, 2)}\n`)

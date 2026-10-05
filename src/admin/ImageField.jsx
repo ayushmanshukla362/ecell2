@@ -19,7 +19,7 @@ export default function ImageField({ name, label, value, onChange, error, disabl
 
   return <section className={`admin-image-field ${gallery ? 'admin-field--wide' : ''}`} aria-labelledby={`${id}-heading`}>
     <h3 id={`${id}-heading`}>{label}</h3>
-    <UploadControl label={`Upload ${label.toLowerCase()}${gallery ? 's' : ''}`} multiple={gallery} remaining={gallery ? Math.max(0, 30 - selected.length) : 1} disabled={disabled} onUploaded={(image) => add(image.url)} onStateChange={(state) => onUploadState(name, state)} />
+    <UploadControl label={`Upload ${label.toLowerCase()}${gallery ? 's' : ''}`} multiple={gallery} remaining={gallery ? Math.max(0, 30 - selected.length) : 1} disabled={disabled} onUploaded={(image) => add(image.url)} onRemoved={(url) => onChange(name, gallery ? (current) => urls(current).filter((value) => value !== url).join('\n') : '')} onStateChange={(state) => onUploadState(name, state)} />
     <button type="button" className="admin-button" disabled={disabled || full} onClick={() => setLibrary((current) => !current)} aria-expanded={library}>{library ? 'Hide media library' : `Choose ${label.toLowerCase()} from media`}</button>
     {library && <MediaLibrary onSelect={add} disabled={disabled || full} />}
     {gallery && <p className="admin-image-field__hint">{selected.length} / 30 images. Displayed in this order; the first gallery image is the event hero.</p>}

@@ -35,8 +35,8 @@ function Testimonial() {
         </Reveal>
       </div>
       <div className="voice-section__body">
-        <div className="voice-section__portrait"><AnimatePresence mode="wait"><motion.img key={active.name} src={active.image} alt={active.name} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} /></AnimatePresence></div>
-        <div className="voice-section__quote"><Quote size={36} strokeWidth={1} aria-hidden="true" /><AnimatePresence mode="wait"><motion.blockquote key={active.name} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.35 }}>{active.quote}</motion.blockquote></AnimatePresence><div className="voice-section__credit"><strong>{active.name}</strong><span>{active.role}</span></div></div>
+        <div className="voice-section__portrait"><AnimatePresence mode="wait"><motion.img key={active.name} src={active.image} alt={active.name} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} /></AnimatePresence></div>
+        <div className="voice-section__quote"><Quote size={36} strokeWidth={1} aria-hidden="true" /><AnimatePresence mode="wait"><motion.blockquote key={active.name} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.25 }}>{active.quote}</motion.blockquote></AnimatePresence><div className="voice-section__credit"><strong>{active.name}</strong><span>{active.role}</span></div></div>
       </div>
     </section>
   )

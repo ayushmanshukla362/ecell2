@@ -1,20 +1,22 @@
 import './App.css';
-import Home from "./Pages/Home";
-import Teams from "./Pages/Teams";
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import Events from './components/EventsPage';
-import EventDetail from './components/EventDetails'; // Import EventDetail component
-import ContactUs from "./components/ContactUs";
 import ScrollToTop from "./components/ScrollToTop";
 import { AuthProvider, AdminRoute } from './auth/AuthContext';
 import { ContentProvider } from './content/ContentContext';
-import Auth from './Pages/Auth';
-import Account from './Pages/Account';
-import Admin from './Pages/Admin';
-import NotFound from './Pages/NotFound';
 import './auth.css';
+
+const Home = lazy(() => import('./Pages/Home'));
+const Teams = lazy(() => import('./Pages/Teams'));
+const Events = lazy(() => import('./components/EventsPage'));
+const EventDetail = lazy(() => import('./components/EventDetails'));
+const ContactUs = lazy(() => import('./components/ContactUs'));
+const Auth = lazy(() => import('./Pages/Auth'));
+const Account = lazy(() => import('./Pages/Account'));
+const Admin = lazy(() => import('./Pages/Admin'));
+const NotFound = lazy(() => import('./Pages/NotFound'));
 
 function App() {
 
@@ -25,6 +27,7 @@ function App() {
         <ContentProvider>
         <Navbar />
         <ScrollToTop />
+        <Suspense fallback={<main className="route-loading" aria-busy="true"><span>Loading…</span></main>}>
         <Routes>
           
           <Route exact path='/' element={<Home />} />
@@ -42,6 +45,7 @@ function App() {
           <Route path='/admin' element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path='*' element={<NotFound />} />
         </Routes>
+        </Suspense>
         <Footer />
         </ContentProvider>
         </AuthProvider>

@@ -52,7 +52,7 @@ function AboutSection() {
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.55, delay: index * 0.08 }}
+            transition={{ duration: 0.38, delay: index * 0.05 }}
           >
             <span className="value-row__number">{number}</span>
             <h3>{title}</h3>

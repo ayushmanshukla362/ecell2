@@ -8,7 +8,7 @@ import ImageField from '../admin/ImageField'
 import MediaLibrary from '../admin/MediaLibrary'
 import AccessPanel from '../admin/AccessPanel'
 import BulkMemberEditor from '../admin/BulkMemberEditor'
-import { useContent } from '../content/ContentContext'
+import { useContentActions } from '../content/ContentContext'
 import ContentImage from '../content/ContentImage'
 import { compareContent, contentBatches, contentYears, MEMBER_GROUPS, STORY_FIELDS } from '../content/contentUtils'
 import { contentFormValues, contentPayload, validateContentForm } from '../content/contentForms'
@@ -121,7 +121,7 @@ function Admin() {
   const { user } = useAuth()
   const [panel, setPanel] = useState('content')
   const [panelBusy, setPanelBusy] = useState(false)
-  const { refresh: refreshPublic } = useContent()
+  const { refresh: refreshPublic } = useContentActions()
   const [content, setContent] = useState({ events: [], members: [] })
   const [collection, setCollection] = useState('events')
   const [requestedPeriod, setPeriod] = useState('all')
@@ -171,7 +171,7 @@ function Admin() {
       if (!result?.item?.id) throw new Error('The server did not return the saved item. Reload content before trying again.')
       setContent((current) => ({ ...current, [collection]: id ? current[collection].map((item) => item.id === id ? result.item : item) : [...current[collection], result.item] }))
       setEditor(null)
-      const refreshed = await refreshPublic()
+       const refreshed = await refreshPublic({ fresh: true })
       setNotice(refreshed ? 'Saved and published successfully.' : 'Saved successfully. The public preview could not refresh; retry loading content on the public page.')
     } finally { mutation.current = false; setBusy(false) }
   }
@@ -188,7 +188,7 @@ function Admin() {
       setPeriod(body.batch)
       setGroup('all')
       setSearch('')
-      const refreshed = await refreshPublic()
+       const refreshed = await refreshPublic({ fresh: true })
       setNotice(`Added ${result.items.length} ${result.items.length === 1 ? 'member' : 'members'} to ${body.batch}.${result.skipped.length ? ` ${result.skipped.length} already in this batch were skipped.` : ''}${!refreshed ? ' Reload the public page to refresh its preview.' : ''}`)
     } finally { mutation.current = false; setBusy(false) }
   }
@@ -201,7 +201,7 @@ function Admin() {
     try {
       await api(`/api/admin/${collection}/${encodeURIComponent(item.id)}`, { method: 'DELETE' })
       setContent((current) => ({ ...current, [collection]: current[collection].filter((record) => record.id !== item.id) }))
-      const refreshed = await refreshPublic()
+       const refreshed = await refreshPublic({ fresh: true })
       setNotice(refreshed ? 'Deleted successfully.' : 'Deleted successfully. The public preview could not refresh; retry loading content on the public page.')
     } catch (error) { setActionError(error.message || 'The item could not be deleted.') }
     finally { mutation.current = false; setBusy(false) }

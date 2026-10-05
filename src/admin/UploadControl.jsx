@@ -47,7 +47,7 @@ function readPreview(file) {
   })
 }
 
-export default function UploadControl({ label, multiple = false, remaining = 1, disabled = false, onUploaded, onStateChange }) {
+export default function UploadControl({ label, multiple = false, remaining = 1, disabled = false, onUploaded, onRemoved, onStateChange }) {
   const id = useId()
   const [entries, setEntries] = useState([])
   const [busy, setBusy] = useState(false)
@@ -74,7 +74,7 @@ export default function UploadControl({ label, multiple = false, remaining = 1, 
           const result = await uploadFile(entry.file)
           if (!result?.image?.url) throw new Error('The server did not return an image URL. Check Media before retrying.')
           onUploaded(result.image)
-          next = next.map((item, i) => i === index ? { ...item, preview: result.image.url, status: 'success' } : item)
+          next = next.map((item, i) => i === index ? { ...item, preview: result.image.url, url: result.image.url, status: 'success' } : item)
         } catch (error) {
           next = next.map((item, i) => i === index ? { ...item, status: 'error', error: error.message || 'Upload failed. Please retry.' } : item)
         }
@@ -103,6 +103,14 @@ export default function UploadControl({ label, multiple = false, remaining = 1, 
     setEntries(next)
     report(false, next, Boolean(selectionError))
   }
+  const removeUploaded = (index) => {
+    const entry = entries[index]
+    if (entry?.status !== 'success') return
+    const next = entries.filter((_, i) => i !== index)
+    setEntries(next)
+    onRemoved?.(entry.url)
+    report(false, next, Boolean(selectionError))
+  }
   const failed = entries.some((entry) => entry.status === 'error')
   const complete = entries.filter((entry) => ['success', 'error'].includes(entry.status)).length
 
@@ -116,6 +124,7 @@ export default function UploadControl({ label, multiple = false, remaining = 1, 
       {entry.preview && <img src={entry.preview} alt={`Selected file ${entry.file.name}`} width="48" height="48" />}
       <div><strong>{entry.file.name}</strong><span>{entry.status === 'success' ? 'Uploaded successfully.' : entry.status === 'error' ? 'Not uploaded.' : entry.status === 'uploading' ? 'Uploading…' : 'Waiting…'}</span>
         {entry.error && <p className="admin-field__error" role="alert">{entry.error}</p>}
+        {entry.status === 'success' && <div className="admin-upload__actions"><button type="button" className="admin-button" disabled={disabled || busy} onClick={() => removeUploaded(index)}>Remove {entry.file.name} from this form</button></div>}
         {entry.status === 'error' && <div className="admin-upload__actions"><button type="button" className="admin-button" disabled={disabled || busy || Boolean(fileError(entry.file)) || remaining < 1} onClick={() => upload(entries, [index])}>Retry {entry.file.name}</button><button type="button" className="admin-button" disabled={disabled || busy} onClick={() => dismiss(index)}>Dismiss failure for {entry.file.name}</button></div>}
       </div>
     </li>)}</ul>}

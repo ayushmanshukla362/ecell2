@@ -36,7 +36,7 @@ Put the generated random value in `AUTH_SECRET`, then configure `.env`:
 | `EMAIL_FROM` | Optional authorized sender; defaults to `EMAIL_USER`. |
 | `CONTACT_EMAIL` | Optional contact-form recipient; defaults to `EMAIL_USER`. |
 | `GOOGLE_CLIENT_ID` | Google OAuth **Web application** client ID. Public identifier; a Google client secret is not needed for this ID-token flow. |
-| `APP_ORIGIN` | Exact browser origin, without a trailing slash. Local default: `http://localhost:5173`. |
+| `APP_ORIGIN` | Exact browser origin, without a trailing slash. `npm run dev` sets this to the available local Vite port; the default is `http://localhost:5173`. |
 | `PORT` | Backend port, local default `8000`. The Vite development proxy targets port 8000; update `vite.config.js` if changing this. |
 | `DATABASE_URL` | Neon pooled PostgreSQL connection string for Vercel/production. Server-only; never use `VITE_DATABASE_URL`. Leave blank for local SQLite. |
 | `DATABASE_PATH` | Local SQLite fallback, relative to the project root or absolute. Default: `backend/data/ecell.sqlite`. Ignored when `DATABASE_URL` is set. |
@@ -76,7 +76,7 @@ Google credentials are verified on the server for signature, audience, issuer, e
 ### First administrator
 
 1. Add the intended email to `ADMIN_EMAILS` in the private server environment and restart the server.
-2. Run `npm run dev`, open `http://localhost:5173/signup`, enter an email, confirm the emailed code, then enter a name and matching strong password. Alternatively use Google sign-in directly; no application email code is sent.
+2. Run `npm run dev` and open the local URL printed by Vite (normally `http://localhost:5173/signup`). If that port is occupied, the launcher uses the next available port and aligns the backend origin automatically. For Google sign-in on that alternate port, add the displayed origin to the OAuth client's authorized JavaScript origins. Enter an email, confirm the emailed code, then enter a name and matching strong password. Alternatively use Google sign-in directly; no application email code is sent.
 3. Open `/admin`. As an owner, use **Access management** to authorize more admin email addresses. They can sign up/sign in normally using that exact email. This preauthorization does **not** create an account, password, or send an invitation—share the site URL yourself.
 4. Owners can revoke dashboard-granted administrators immediately. Revocation signs out their existing sessions but preserves their personal account and published content. Ordinary content admins cannot grant roles or remove owners. The environment's protected owners can only be changed in `ADMIN_EMAILS` with a backend restart; verify another owner can sign in before removing one.
 

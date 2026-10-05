@@ -102,7 +102,9 @@ export const eventSlug = (title) => title.toLowerCase().replace(/ /g, '-')
 function contentResult(rows) {
   const result = { events: [], members: [] }
   for (const row of rows) result[row.kind].push(JSON.parse(row.data))
-  for (const items of Object.values(result)) items.sort((a, b) => (a.order || 0) - (b.order || 0) || a.id.localeCompare(b.id, undefined, { numeric: true }))
+  for (const items of Object.values(result)) items.sort((a, b) => (a.order || 0) - (b.order || 0)
+    || (a.name || a.title || '').localeCompare(b.name || b.title || '')
+    || a.id.localeCompare(b.id, undefined, { numeric: true }))
   return result
 }
 

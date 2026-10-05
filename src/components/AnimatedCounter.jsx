@@ -14,7 +14,7 @@ function AnimatedCounter({ value, suffix = '', prefix = '' }) {
 
     let frameId
     const start = performance.now()
-    const duration = 1200
+    const duration = 700
 
     const tick = (now) => {
       const progress = Math.min((now - start) / duration, 1)

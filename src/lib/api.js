@@ -19,7 +19,7 @@ async function request(path, options = {}) {
   } finally { clearTimeout(timer) }
 }
 
-export async function api(path, { method = 'GET', body } = {}) {
+export async function api(path, { method = 'GET', body, cache } = {}) {
   if (!path.startsWith('/api/')) throw new Error('API paths must be same-origin /api/ URLs.')
   const mutation = !['GET', 'HEAD'].includes(method)
   const binary = body instanceof Blob
@@ -34,6 +34,7 @@ export async function api(path, { method = 'GET', body } = {}) {
     const result = await request(path, {
       method,
       headers: mutation ? { 'Content-Type': binary ? body.type : 'application/json', ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}) } : {},
+      ...(cache ? { cache } : {}),
       ...(mutation ? { body: binary ? body : JSON.stringify(body ?? {}) } : {}),
     })
     if (result && Object.hasOwn(result, 'csrfToken') && (mutation || revision === csrfRevision)) {

@@ -58,7 +58,7 @@ function AchievementsSection() {
               initial={{ opacity: 0, x: -18 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-10% 0px' }}
-              transition={{ duration: 0.55, delay: index * 0.06 }}
+              transition={{ duration: 0.38, delay: index * 0.04 }}
             >
               <span className="metric-row__number"><AnimatedCounter value={metric.value} suffix={metric.suffix} /></span>
               <span className="metric-row__label">{metric.label}</span>

@@ -5,19 +5,38 @@ import './content.css'
 
 const ContentContext = createContext(null)
 
+function readBootstrapContent() {
+  if (typeof document === 'undefined') return null
+  const node = document.getElementById('ecell-content-bootstrap')
+  if (!node) return null
+  try {
+    const data = JSON.parse(node.textContent || '')
+    if (!Array.isArray(data?.events) || !Array.isArray(data?.members)) return null
+    node.remove()
+    return { events: data.events, members: data.members }
+  } catch { return null }
+}
+
+const bootstrapContent = readBootstrapContent()
+
 export function ContentProvider({ children }) {
-  const [content, setContent] = useState({ events: [], members: [] })
-  const [loading, setLoading] = useState(true)
+  const [content, setContent] = useState(() => bootstrapContent || { events: [], members: [] })
+  const [loading, setLoading] = useState(!bootstrapContent)
   const [error, setError] = useState('')
   const request = useRef(0)
+  const loaded = useRef(Boolean(bootstrapContent))
+  const backgroundRefresh = useRef(Boolean(bootstrapContent))
+  const inFlight = useRef(null)
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async ({ fresh = false } = {}) => {
     const current = ++request.current
     setLoading(true)
     setError('')
     try {
-      const data = await api('/api/content')
+      const path = fresh ? `/api/content?refresh=${Date.now()}` : '/api/content'
+      const data = await api(path, fresh ? { cache: 'no-store' } : {})
       if (!Array.isArray(data?.events) || !Array.isArray(data?.members)) throw new Error('The content response was incomplete. Please retry.')
+      loaded.current = true
       if (current === request.current) setContent({ events: data.events, members: data.members })
       return data
     } catch (cause) {
@@ -28,16 +47,37 @@ export function ContentProvider({ children }) {
     }
   }, [])
 
-  useEffect(() => {
-    refresh()
-    return () => { request.current += 1 }
+  const ensure = useCallback(() => {
+    if (backgroundRefresh.current) {
+      backgroundRefresh.current = false
+      if (!inFlight.current) inFlight.current = refresh().finally(() => { inFlight.current = null })
+      return inFlight.current
+    }
+    if (loaded.current) return inFlight.current || Promise.resolve()
+    if (!inFlight.current) inFlight.current = refresh().finally(() => { inFlight.current = null })
+    return inFlight.current
   }, [refresh])
+  const retry = useCallback(() => refresh({ fresh: true }), [refresh])
 
-  return <ContentContext.Provider value={{ ...content, loading, error, refresh, retry: refresh }}>{children}</ContentContext.Provider>
+  useEffect(() => {
+    return () => { request.current += 1 }
+  }, [])
+
+  return <ContentContext.Provider value={{ ...content, loading, error, refresh, retry, ensure }}>{children}</ContentContext.Provider>
 }
 
 export function useContent() {
   const context = useContext(ContentContext)
   if (!context) throw new Error('useContent must be used inside ContentProvider')
+  const { ensure } = context
+  useEffect(() => {
+    ensure()
+  }, [ensure])
   return context
+}
+
+export function useContentActions() {
+  const context = useContext(ContentContext)
+  if (!context) throw new Error('useContentActions must be used inside ContentProvider')
+  return { refresh: context.refresh, retry: context.retry }
 }

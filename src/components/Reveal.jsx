@@ -14,7 +14,7 @@ function Reveal({ children, className = '', delay = 0, distance = 24 }) {
       className={className}
       initial={shouldReduceMotion ? false : { opacity: 0, y: distance }}
       animate={shouldReduceMotion || isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: distance }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.42, delay: Math.min(delay, 0.2), ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>

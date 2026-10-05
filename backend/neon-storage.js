@@ -175,8 +175,9 @@ export function installNeonUploads(app, { db, config, now = Date.now, s3: suppli
   app.get('/uploads/:filename', async (req, res, next) => {
     try {
       if (!filePattern.test(req.params.filename) || !await db.prepare('SELECT 1 FROM uploads WHERE filename = ?').get(req.params.filename)) return res.status(404).end()
-      const url = await sign(s3, new GetObjectCommand({ Bucket: config.storage.bucket, Key: imageKey(req.params.filename), ResponseContentType: 'image/webp', ResponseContentDisposition: 'inline' }), { expiresIn: 300 })
-      res.redirect(302, url)
+       const url = await sign(s3, new GetObjectCommand({ Bucket: config.storage.bucket, Key: imageKey(req.params.filename), ResponseContentType: 'image/webp', ResponseContentDisposition: 'inline', ResponseCacheControl: 'public,max-age=31536000,immutable' }), { expiresIn: 300 })
+       res.set('Cache-Control', 'public, max-age=300')
+       res.redirect(302, url)
     } catch (error) { next(error) }
   })
   app.use('/uploads', (req, res) => res.status(404).end())

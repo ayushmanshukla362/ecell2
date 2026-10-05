@@ -59,7 +59,7 @@ function EventDetails() {
       <div className="site-section">
         <Link to="/events" className="back-link">← Back to the archive</Link>
         <section className="event-detail-hero">
-          <motion.div className="event-detail-hero__copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
+          <motion.div className="event-detail-hero__copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42 }}>
             <p className="eyebrow"><span>{event.year}</span> / {event.category}</p>
             <h1 id="event-detail-title">{event.title}</h1>
             <p className="event-detail-hero__summary">{event.shortDescription}</p>
@@ -74,8 +74,8 @@ function EventDetails() {
               <input id="event-share-url" type="url" readOnly value={currentShare.manualUrl} onFocus={(inputEvent) => inputEvent.currentTarget.select()} />
             </div>}
           </motion.div>
-          <motion.figure className="event-detail-hero__image" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.1 }}>
-            <ContentImage src={heroImage} alt={`${event.title} event`} width="1200" height="800" />
+          <motion.figure className="event-detail-hero__image" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.52, delay: 0.06 }}>
+            <ContentImage src={heroImage} alt={`${event.title} event`} width="1200" height="800" loading="eager" fetchPriority="high" />
             <figcaption>{event.category} / {event.year}</figcaption>
           </motion.figure>
         </section>
@@ -94,7 +94,7 @@ function EventDetails() {
 
         <section className="event-detail-copy" aria-label="Event story">
           {Object.entries(sectionLabels).map(([key, label], index) => sections[key] ? (
-            <motion.article key={key} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-10% 0px' }} transition={{ duration: 0.55, delay: index * 0.05 }}>
+            <motion.article key={key} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-10% 0px' }} transition={{ duration: 0.38, delay: index * 0.03 }}>
               <span className="event-detail-copy__index">0{index + 1}</span>
               <div><h2>{label}</h2><p style={{ whiteSpace: 'pre-line' }}>{sections[key]}</p></div>
             </motion.article>

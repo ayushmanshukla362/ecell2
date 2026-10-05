@@ -19,13 +19,13 @@ function HeroSection() {
         className="hero-orbit hero-orbit--one"
         aria-hidden="true"
         animate={shouldReduceMotion ? undefined : { rotate: 360 }}
-        transition={{ duration: 36, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
       />
       <motion.div
         className="hero-orbit hero-orbit--two"
         aria-hidden="true"
         animate={shouldReduceMotion ? undefined : { rotate: -360 }}
-        transition={{ duration: 52, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 38, repeat: Infinity, ease: 'linear' }}
       />
 
       <div className="hero-frame">
@@ -41,7 +41,7 @@ function HeroSection() {
               className="eyebrow hero-eyebrow"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+              transition={{ duration: 0.42, delay: 0.08 }}
             >
               Student-led. Future-facing.
             </motion.p>
@@ -49,7 +49,7 @@ function HeroSection() {
               id="hero-title"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 32 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.55, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
             >
               <span>E-Cell</span>
               <span className="hero-title__accent">ABES</span>
@@ -60,7 +60,7 @@ function HeroSection() {
               className="hero-tagline"
               initial={shouldReduceMotion ? false : { opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.52 }}
+              transition={{ duration: 0.45, delay: 0.28 }}
             >
               <span>From Ideas</span>
               <span className="hero-tagline__arrow">→</span>
@@ -70,7 +70,7 @@ function HeroSection() {
               className="hero-description"
               initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.7 }}
+              transition={{ duration: 0.45, delay: 0.38 }}
             >
               A community of student innovators building the confidence, connections and curiosity to make ideas matter.
             </motion.p>
@@ -78,7 +78,7 @@ function HeroSection() {
               className="hero-actions"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.86 }}
+              transition={{ duration: 0.42, delay: 0.48 }}
             >
               <MagneticButton to="/events" variant="yellow">Explore our work</MagneticButton>
               <Link className="text-link" to="/teams">
@@ -89,7 +89,7 @@ function HeroSection() {
 
           <div className="hero-visual">
             <motion.div className="hero-image-wrap" style={{ y: shouldReduceMotion ? 0 : imageY }}>
-              <img src={heroImage} alt="E-Cell ABES students at E-Summit 2025" className="hero-image" width="1200" height="1600" />
+              <img src={heroImage} alt="E-Cell ABES students at E-Summit 2025" className="hero-image" width="1200" height="1600" fetchPriority="high" decoding="async" />
               <div className="hero-image-wash" aria-hidden="true" />
             </motion.div>
             <div className="hero-stamp" aria-hidden="true">

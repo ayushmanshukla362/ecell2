@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently --kill-others \"npm run server\" \"npm run client\"",
+    "dev": "node scripts/dev.mjs",
     "server": "node backend/server.js",
     "start": "node backend/server.js",
     "preclient": "npm run content:export",
@@ -33,6 +33,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "axios": "^1.8.4",
     "body-parser": "^2.2.0",
+    "compression": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",

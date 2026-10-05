@@ -122,7 +122,7 @@ export function installUploads(app, { db, config, now = Date.now }) {
   // Serve only recorded re-encoded images, never an arbitrary directory/file path.
   app.get('/uploads/:filename', (req, res, next) => {
     if (!filePattern.test(req.params.filename) || !db.prepare('SELECT 1 FROM uploads WHERE filename = ?').get(req.params.filename)) return res.status(404).end()
-    res.set({ 'Content-Type': 'image/webp', 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff', 'Content-Disposition': 'inline' })
+    res.set({ 'Content-Type': 'image/webp', 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff', 'Content-Disposition': 'inline' })
     res.sendFile(req.params.filename, { root: config.uploadDir, dotfiles: 'deny' }, (error) => { if (error) next(error.status === 404 ? httpError(404, 'Image not found.') : error) })
   })
   app.use('/uploads', (req, res) => res.status(404).end())
