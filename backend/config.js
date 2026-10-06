@@ -19,8 +19,14 @@ export function loadConfig(env = process.env) {
   try { adminEmails = new Set((env.ADMIN_EMAILS || '').split(',').map((email) => email.trim()).filter(Boolean).map(emailValue)) }
   catch { throw new Error('ADMIN_EMAILS must contain comma-separated email addresses.') }
   if (production && !adminEmails.size) throw new Error('Production requires at least one protected owner in ADMIN_EMAILS.')
-  if (production && (!env.EMAIL_USER || !env.EMAIL_PASS)) throw new Error('Production requires EMAIL_USER and EMAIL_PASS for email signup and password recovery.')
-  if (env.EMAIL_USER) emailValue(env.EMAIL_USER)
+  const emailUser = typeof env.EMAIL_USER === 'string' ? env.EMAIL_USER.trim() : ''
+  // Gmail displays app passwords in four-character groups. Removing whitespace
+  // lets a copied app password work in both .env files and hosting dashboards.
+  const emailPass = typeof env.EMAIL_PASS === 'string' ? env.EMAIL_PASS.replace(/\s+/g, '') : ''
+  const emailFrom = typeof env.EMAIL_FROM === 'string' && env.EMAIL_FROM.trim() ? env.EMAIL_FROM.trim() : emailUser
+  const contactEmail = typeof env.CONTACT_EMAIL === 'string' && env.CONTACT_EMAIL.trim() ? env.CONTACT_EMAIL.trim() : emailUser
+  if (production && (!emailUser || !emailPass)) throw new Error('Production requires EMAIL_USER and EMAIL_PASS for email signup and password recovery.')
+  if (emailUser) emailValue(emailUser)
   const databaseUrl = typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL.trim() : ''
   if (databaseUrl) {
     let parsedDatabaseUrl
@@ -58,10 +64,10 @@ export function loadConfig(env = process.env) {
     databasePath, uploadDir,
     uploadQuotaBytes: uploadLimitMb * 1024 * 1024,
     googleClientId: env.GOOGLE_CLIENT_ID || '',
-    emailUser: env.EMAIL_USER || '',
-    emailPass: env.EMAIL_PASS || '',
-    emailFrom: env.EMAIL_FROM || env.EMAIL_USER || '',
-    contactEmail: env.CONTACT_EMAIL || env.EMAIL_USER || '',
+    emailUser,
+    emailPass,
+    emailFrom,
+    contactEmail,
     sessionMs: 8 * 60 * 60 * 1000,
     codeMs: 10 * 60 * 1000,
   }

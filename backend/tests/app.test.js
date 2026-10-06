@@ -13,6 +13,7 @@ test('configuration fails closed and production requires HTTPS and a real secret
   assert.throws(() => loadConfig({ AUTH_SECRET: 'x'.repeat(32), APP_ORIGIN: 'https://example.com/path' }), /origin/)
   assert.throws(() => loadConfig({ AUTH_SECRET: 'x'.repeat(32), ADMIN_EMAILS: 'not-an-email' }), /ADMIN_EMAILS/)
   assert.equal(loadConfig({ AUTH_SECRET: 'x'.repeat(32) }).adminEmails.size, 0)
+  assert.equal(loadConfig({ AUTH_SECRET: 'x'.repeat(32), EMAIL_USER: 'sender@example.com', EMAIL_PASS: 'abcd efgh ijkl mnop', EMAIL_FROM: ' sender@example.com ' }).emailPass, 'abcdefghijklmnop')
 })
 
 test('email-only signup verifies email before accepting a password or creating a session', async (t) => {

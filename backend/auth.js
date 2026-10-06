@@ -71,7 +71,10 @@ export function installAuth(app, { db, config, sendCode, verifyGoogle, now = Dat
     await db.prepare('INSERT INTO challenges(id,email,purpose,code_hash,payload,expires_at,created_at) VALUES(?,?,?,?,?,?,?)')
       .run(id, email, storedPurpose, codeDigest(config.secret, id, code), JSON.stringify(payload), now() + config.codeMs, now())
     try { await sendCode(email, code, purpose) }
-    catch {
+    catch (error) {
+      // Keep provider details out of the response, but leave a safe diagnostic
+      // in the server log so SMTP configuration failures are actionable.
+      console.error('Verification email delivery failed:', error?.code || error?.responseCode || error?.message || 'unknown mail error')
       await db.prepare('DELETE FROM challenges WHERE id = ?').run(id)
       throw httpError(503, 'Verification email could not be sent. Please try again later or contact the site administrator.')
     }
