@@ -6,17 +6,18 @@ import { findEventBySlug } from './EventsData'
 import { useContent } from '../content/ContentContext'
 import ContentImage from '../content/ContentImage'
 import ContentStatus from '../content/ContentStatus'
+import { eventTypeLabel } from '../content/contentUtils'
 
 const sectionLabels = { about: 'About the event', vision: 'Our vision', callout: 'In focus', review: 'Event review', conclusion: 'Conclusion' }
 
 function EventDetails() {
   const { slug } = useParams()
-  const { events, loading, error, retry } = useContent()
+  const { events, loading, refreshing, error, retry } = useContent()
   const event = findEventBySlug(events, slug)
   const [shareStatus, setShareStatus] = useState(null)
   const currentShare = shareStatus?.slug === slug ? shareStatus : null
 
-  if (loading || error) return <main className="event-detail-page"><div className="site-section"><Link className="back-link" to="/events">← Back to the archive</Link><ContentStatus loading={loading} error={error} retry={retry} /></div></main>
+  if (loading || error) return <main className="event-detail-page"><div className="site-section"><Link className="back-link" to="/events">← Back to the archive</Link><ContentStatus loading={loading} refreshing={refreshing} error={error} retry={retry} empty={!event} /></div></main>
 
   if (!event) {
     return (
@@ -60,7 +61,7 @@ function EventDetails() {
         <Link to="/events" className="back-link">← Back to the archive</Link>
         <section className="event-detail-hero">
           <motion.div className="event-detail-hero__copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42 }}>
-            <p className="eyebrow"><span>{event.year}</span> / {event.category}</p>
+            <p className="eyebrow"><span>{event.year}</span> / {eventTypeLabel(event.type)} / {event.category}</p>
             <h1 id="event-detail-title">{event.title}</h1>
             <p className="event-detail-hero__summary">{event.shortDescription}</p>
             <div className="event-detail-hero__actions">
@@ -76,7 +77,7 @@ function EventDetails() {
           </motion.div>
           <motion.figure className="event-detail-hero__image" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.52, delay: 0.06 }}>
             <ContentImage src={heroImage} alt={`${event.title} event`} width="1200" height="800" loading="eager" fetchPriority="high" />
-            <figcaption>{event.category} / {event.year}</figcaption>
+            <figcaption>{eventTypeLabel(event.type)} / {event.category} / {event.year}</figcaption>
           </motion.figure>
         </section>
 

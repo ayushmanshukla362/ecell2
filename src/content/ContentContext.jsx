@@ -22,30 +22,40 @@ const bootstrapContent = readBootstrapContent()
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(() => bootstrapContent || { events: [], members: [] })
   const [loading, setLoading] = useState(!bootstrapContent)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
   const request = useRef(0)
   const loaded = useRef(Boolean(bootstrapContent))
   const backgroundRefresh = useRef(Boolean(bootstrapContent))
   const inFlight = useRef(null)
 
-  const refresh = useCallback(async ({ fresh = false } = {}) => {
+  const load = useCallback(async ({ fresh = false } = {}) => {
     const current = ++request.current
-    setLoading(true)
-    setError('')
+    const hadContent = loaded.current
+    if (hadContent) setRefreshing(true)
+    else setLoading(true)
     try {
       const path = fresh ? `/api/content?refresh=${Date.now()}` : '/api/content'
       const data = await api(path, fresh ? { cache: 'no-store' } : {})
       if (!Array.isArray(data?.events) || !Array.isArray(data?.members)) throw new Error('The content response was incomplete. Please retry.')
-      loaded.current = true
-      if (current === request.current) setContent({ events: data.events, members: data.members })
+      if (current === request.current) {
+        loaded.current = true
+        setContent({ events: data.events, members: data.members })
+        setError('')
+      }
       return data
     } catch (cause) {
       if (current === request.current) setError(cause.message || 'Content could not be loaded.')
       return null
     } finally {
-      if (current === request.current) setLoading(false)
+      if (current === request.current) {
+        if (hadContent) setRefreshing(false)
+        else setLoading(false)
+      }
     }
   }, [])
+
+  const refresh = useCallback((options = {}) => load(options), [load])
 
   const ensure = useCallback(() => {
     if (backgroundRefresh.current) {
@@ -63,7 +73,7 @@ export function ContentProvider({ children }) {
     return () => { request.current += 1 }
   }, [])
 
-  return <ContentContext.Provider value={{ ...content, loading, error, refresh, retry, ensure }}>{children}</ContentContext.Provider>
+  return <ContentContext.Provider value={{ ...content, loading, refreshing, error, refresh, retry, ensure }}>{children}</ContentContext.Provider>
 }
 
 export function useContent() {

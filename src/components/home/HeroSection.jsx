@@ -96,10 +96,6 @@ function HeroSection() {
               <img src={logo} alt="" />
               <span>Ideas<br />into<br />impact</span>
             </div>
-            <div className="hero-caption">
-              <span>01 / 04</span>
-              <span>Building on campus<br />and beyond</span>
-            </div>
           </div>
         </div>
 

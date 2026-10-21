@@ -33,15 +33,26 @@ test('seed preserves featured IDs and leadership without marking volunteers feat
 
 test('required fields, numeric boundaries and consecutive batches are validated', () => {
   const event = contentFormValues('events')
+  assert.equal(event.type, 'event')
   assert.deepEqual(Object.keys(validateContentForm('events', event)).sort(), ['date', 'title'])
   Object.assign(event, { title: 'Launch', date: 'March 1', year: 1899, order: 0.5 })
   assert.deepEqual(Object.keys(validateContentForm('events', event)).sort(), ['order', 'year'])
   Object.assign(event, { year: 2200, order: 10000 })
   assert.deepEqual(validateContentForm('events', event), {})
+  event.type = 'workshop'
+  assert.deepEqual(validateContentForm('events', event).type, 'Choose Event or Session.')
+  event.type = 'session'
+  assert.equal(contentPayload('events', event).type, 'session')
   Object.assign(event, { title: 'x'.repeat(161), shortDescription: 'x'.repeat(601), order: '' })
   assert.deepEqual(Object.keys(validateContentForm('events', event)).sort(), ['order', 'shortDescription', 'title'])
   const member = contentFormValues('members', { name: 'Test', batch: '2025-2027', group: 'unknown' })
   assert.deepEqual(Object.keys(validateContentForm('members', member)).sort(), ['batch', 'group'])
+})
+
+test('event records without a type default to Event in the editor payload', () => {
+  const values = contentFormValues('events', { title: 'Legacy record', date: 'Today' })
+  assert.equal(values.type, 'event')
+  assert.equal(contentPayload('events', values).type, 'event')
 })
 
 test('images accept only local roots or HTTPS; social and registration links require HTTPS', () => {

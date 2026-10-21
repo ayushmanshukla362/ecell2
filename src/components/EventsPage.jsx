@@ -10,7 +10,7 @@ import EventCard from './events/EventCard'
 import YearSelector from './events/YearSelector'
 
 function EventsPage() {
-  const { events, loading, error, retry } = useContent()
+  const { events, loading, refreshing, error, retry } = useContent()
   const [requestedYear, setSelectedYear] = useState('')
   const years = contentYears(events)
   const selectedYear = years.includes(requestedYear) ? requestedYear : years[0] || ''
@@ -30,7 +30,7 @@ function EventsPage() {
       </header>
       <div className="site-section">
         {years.length > 0 && <YearSelector years={years} selectedYear={selectedYear} onChange={setSelectedYear} />}
-        <ContentStatus loading={loading} error={error} retry={retry} empty={!events.length} emptyMessage="No events have been published yet. Check back soon." />
+        <ContentStatus loading={loading} refreshing={refreshing} error={error} retry={retry} empty={!events.length} emptyMessage="No events have been published yet. Check back soon." />
         <div className="archive-results" aria-live="polite" aria-busy={loading}>
           <AnimatePresence mode="wait">
             <motion.div key={selectedYear} className="archive-grid" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.24 }}>

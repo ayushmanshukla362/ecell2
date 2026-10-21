@@ -50,7 +50,8 @@ test('bulk team additions persist private account links, skip duplicates, and ma
     assert.equal(member.userId, undefined)
   }
   const adminContent = (await f.request('/api/admin/content', owner)).body
-  assert.equal(adminContent.members[0].account.email, 'first@example.com')
+  const firstMember = adminContent.members.find((member) => member.account?.email === 'first@example.com')
+  assert.equal(firstMember?.account.email, 'first@example.com')
   const directory = await f.request('/api/admin/users?batch=2025-2026&year=2025', owner)
   assert.equal(directory.body.total, 1)
   assert.deepEqual(directory.body.users[0].batches, ['2025-2026'])

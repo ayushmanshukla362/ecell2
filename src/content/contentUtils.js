@@ -1,6 +1,10 @@
 export const PLACEHOLDER_IMAGE = '/content-assets/placeholder.svg'
 export const MEMBER_GROUPS = ['executives', 'mentors', 'alumni', 'volunteers']
 export const STORY_FIELDS = ['about', 'vision', 'callout', 'review', 'conclusion']
+export const EVENT_TYPES = ['event', 'session']
+export const EVENT_TYPE_LABELS = { event: 'Event', session: 'Session' }
+
+export const eventTypeLabel = (type) => EVENT_TYPE_LABELS[type] || EVENT_TYPE_LABELS.event
 
 // Explicit order wins; ties remain deterministic across requests and views.
 export function compareContent(left, right) {

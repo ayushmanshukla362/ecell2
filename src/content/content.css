@@ -1,4 +1,5 @@
 .content-status { margin: 1.5rem 0; padding: 1.25rem; border: 1px solid var(--line); color: var(--muted); line-height: 1.6; }
+.content-status--refreshing { color: var(--paper); }
 .content-status--error { border-color: var(--yellow); color: var(--paper); }
 .content-status button { margin-top: .75rem; padding: .5rem 1rem; color: var(--ink); background: var(--yellow); border: 0; }
 .content-status button:disabled { opacity: .6; cursor: wait; }

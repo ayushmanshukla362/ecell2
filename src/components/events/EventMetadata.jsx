@@ -1,6 +1,9 @@
+import { eventTypeLabel } from '../../content/contentUtils'
+
 /* eslint-disable react/prop-types */
 function EventMetadata({ event }) {
   const metadata = [
+    ['Type', eventTypeLabel(event.type)],
     ['Category', event.category],
     ['Year', event.year],
     ['Venue', event.venue],

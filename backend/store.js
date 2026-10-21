@@ -115,17 +115,71 @@ export function getContent(db) {
   return isPromiseLike(rows) ? rows.then(contentResult) : contentResult(rows)
 }
 
+const CLEANUP_TABLES = ['sessions', 'challenges', 'auth_grants', 'rate_limits', 'oauth_nonces', 'upload_intents']
+const POSTGRES_CLEANUP = `WITH deleted_sessions AS (
+  DELETE FROM sessions WHERE expires_at <= ? RETURNING 1
+), deleted_challenges AS (
+  DELETE FROM challenges WHERE expires_at <= ? RETURNING 1
+), deleted_auth_grants AS (
+  DELETE FROM auth_grants WHERE expires_at <= ? RETURNING 1
+), deleted_rate_limits AS (
+  DELETE FROM rate_limits WHERE expires_at <= ? RETURNING 1
+), deleted_oauth_nonces AS (
+  DELETE FROM oauth_nonces WHERE expires_at <= ? RETURNING 1
+), deleted_upload_intents AS (
+  DELETE FROM upload_intents WHERE expires_at <= ? RETURNING 1
+)
+SELECT 1 AS cleaned`
+
 // Keep cleanup synchronous for the existing local maintenance/tests while
-// supporting the asynchronous adapter used by Neon.
+// using one parameterized PostgreSQL statement for the asynchronous adapter.
 export function cleanup(db, now = Date.now()) {
-  const tables = ['sessions', 'challenges', 'auth_grants', 'rate_limits', 'oauth_nonces', 'upload_intents']
-  const first = db.prepare(`DELETE FROM ${tables[0]} WHERE expires_at <= ?`).run(now)
+  if (db.dialect === 'postgres') return db.prepare(POSTGRES_CLEANUP).get(...CLEANUP_TABLES.map(() => now))
+  const first = db.prepare(`DELETE FROM ${CLEANUP_TABLES[0]} WHERE expires_at <= ?`).run(now)
   if (!isPromiseLike(first)) {
-    for (const table of tables.slice(1)) db.prepare(`DELETE FROM ${table} WHERE expires_at <= ?`).run(now)
+    for (const table of CLEANUP_TABLES.slice(1)) db.prepare(`DELETE FROM ${table} WHERE expires_at <= ?`).run(now)
     return undefined
   }
   return (async () => {
     await first
-    for (const table of tables.slice(1)) await db.prepare(`DELETE FROM ${table} WHERE expires_at <= ?`).run(now)
+    for (const table of CLEANUP_TABLES.slice(1)) await db.prepare(`DELETE FROM ${table} WHERE expires_at <= ?`).run(now)
   })()
+}
+
+function redactCleanupDetails(value) {
+  return String(value)
+    .replace(/\b(postgres(?:ql)?|mysql|mongodb):\/\/[^@\s]+@/gi, '$1://[redacted]@')
+    .replace(/([?&](?:password|pass|secret|token|api[_-]?key)=)[^&\s]*/gi, '$1[redacted]')
+    .replace(/((?:password|secret|token|api[_-]?key)\s*[:=]\s*)[^\s,;]+/gi, '$1[redacted]')
+}
+
+export function formatCleanupError(error) {
+  let detail
+  if (error instanceof Error) {
+    detail = [error.code, error.message || error.name].filter(Boolean).join(': ')
+  } else if (typeof error === 'string') {
+    detail = error
+  } else if (error && typeof error === 'object') {
+    detail = [error.code, typeof error.message === 'string' ? error.message : 'Unknown cleanup failure'].filter(Boolean).join(': ')
+  } else {
+    try { detail = String(error) } catch { detail = 'Unknown cleanup failure' }
+  }
+  return redactCleanupDetails(detail || 'Unknown cleanup failure')
+}
+
+export function createCleanupRunner(db, { log = console.error } = {}) {
+  let running = false
+  return async function runCleanup() {
+    if (running) return false
+    running = true
+    try {
+      await cleanup(db)
+      return true
+    } catch (error) {
+      log('Database cleanup failed:', formatCleanupError(error))
+      return false
+    } finally {
+      running = false
+    }
+  }
 }

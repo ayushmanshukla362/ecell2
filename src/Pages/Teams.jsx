@@ -9,7 +9,7 @@ import ContentStatus from '../content/ContentStatus'
 import { contentBatches } from '../content/contentUtils'
 
 function Teams() {
-  const { members, loading, error, retry } = useContent()
+  const { members, loading, refreshing, error, retry } = useContent()
   const [requestedBatch, setCurrentTeam] = useState('')
   const batches = contentBatches(members)
   const currentTeam = batches.includes(requestedBatch) ? requestedBatch : batches[0] || ''
@@ -27,7 +27,7 @@ function Teams() {
           <p className="eyebrow"><span>02</span> / Current roster</p>
           <TeamYearSelector years={batches} currentTeam={currentTeam} onChange={setCurrentTeam} />
         </div>
-        <ContentStatus loading={loading} error={error} retry={retry} empty={!members.length} emptyMessage="The team roster has not been published yet." />
+        <ContentStatus loading={loading} refreshing={refreshing} error={error} retry={retry} empty={!members.length} emptyMessage="The team roster has not been published yet." />
         {selectedTeam.executives.length > 0 && <TeamSection badge="Leadership / departments" title="The people in the room" members={selectedTeam.executives} groupByHierarchy />}
         {selectedTeam.mentors.length > 0 && <TeamSection badge="Mentors" title="The people who guide us" members={selectedTeam.mentors} />}
         {selectedTeam.alumni.length > 0 && <TeamSection badge="Alumni" title="The people who started it" members={selectedTeam.alumni} />}

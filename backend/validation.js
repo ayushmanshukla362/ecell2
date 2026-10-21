@@ -26,6 +26,7 @@ function integer(value, field, min, max) {
   if (!Number.isInteger(value) || value < min || value > max) throw httpError(400, `${field} must be a whole number from ${min} to ${max}.`)
   return value
 }
+const EVENT_TYPES = new Set(['event', 'session'])
 export function validateContent(kind, body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) throw httpError(400, 'Send a content object.')
   if (body.featured !== undefined && typeof body.featured !== 'boolean') throw httpError(400, 'featured must be true or false.')
@@ -37,6 +38,11 @@ export function validateContent(kind, body) {
       ...common,
       title: text(body.title, 'Title', 160, true), date: text(body.date, 'Date', 100, true),
       year: integer(body.year, 'Year', 1900, 2200), category: text(body.category, 'Category', 100),
+      type: (() => {
+        const value = body.type === undefined ? 'event' : text(body.type, 'Type', 20)
+        if (!EVENT_TYPES.has(value)) throw httpError(400, 'Type must be event or session.')
+        return value
+      })(),
       shortDescription: text(body.shortDescription, 'Summary', 600), venue: text(body.venue, 'Venue', 200),
       speakers: list(body.speakers, 'Speakers', 50, (v, f) => text(v, f, 160)),
       highlights: list(body.highlights, 'Highlights', 50, (v, f) => text(v, f, 300)),

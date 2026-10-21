@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import nodemailer from 'nodemailer'
 import { googleVerifier } from './google.js'
 import { loadConfig, projectRoot } from './config.js'
-import { openStoreAsync, cleanup } from './store.js'
+import { openStoreAsync, createCleanupRunner } from './store.js'
 import { createApp } from './app.js'
 
 // Protect any local SQLite/WAL files created by this process from other OS users.
@@ -41,7 +41,6 @@ async function initializeRuntime() {
     }),
     verifyGoogle: googleVerifier(config.googleClientId),
   })
-  await cleanup(db)
   return { app, db, config }
 }
 
@@ -57,11 +56,13 @@ export default async function handler(req, res) {
 async function startServer() {
   const runtime = await getRuntime()
   const { app, db, config } = runtime
-  const cleaner = setInterval(() => { cleanup(db).catch((error) => console.error('Database cleanup failed:', error.message)) }, 60 * 1000).unref()
+  const runCleanup = createCleanupRunner(db)
+  const cleaner = setInterval(() => { void runCleanup() }, 60 * 1000).unref()
   const server = app.listen(config.port, () => {
     console.log(`E-Cell API listening on port ${config.port}`)
     if (!config.adminEmails.size) console.warn('ADMIN_EMAILS is empty: no protected owner can manage administrator access.')
     if (!config.emailUser || !config.emailPass) console.warn('Email credentials are missing: verification email delivery is disabled.')
+    void runCleanup()
   })
   server.requestTimeout = 30000
   server.headersTimeout = 15000

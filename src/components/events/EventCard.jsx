@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { createEventSlug } from '../EventsData'
 import ContentImage from '../../content/ContentImage'
+import { eventTypeLabel } from '../../content/contentUtils'
 
 /* eslint-disable react/prop-types */
 
@@ -16,7 +17,7 @@ function EventCard({ event, index = 0 }) {
         <span className="archive-card__arrow"><ArrowUpRight size={19} aria-hidden="true" /></span>
       </Link>
       <div className="archive-card__body">
-        <div className="archive-card__meta"><span>{event.category}</span><span>{event.date}</span></div>
+        <div className="archive-card__meta"><span>{eventTypeLabel(event.type)}</span><span>{event.category}</span><span>{event.date}</span></div>
         <h2>{event.title}</h2>
         <p>{event.shortDescription}</p>
         <Link to={`/events/${encodeURIComponent(createEventSlug(event.title))}`} className="archive-card__link">Read the story <ArrowUpRight size={15} aria-hidden="true" /></Link>

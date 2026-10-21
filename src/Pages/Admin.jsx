@@ -10,7 +10,7 @@ import AccessPanel from '../admin/AccessPanel'
 import BulkMemberEditor from '../admin/BulkMemberEditor'
 import { useContentActions } from '../content/ContentContext'
 import ContentImage from '../content/ContentImage'
-import { compareContent, contentBatches, contentYears, MEMBER_GROUPS, STORY_FIELDS } from '../content/contentUtils'
+import { compareContent, contentBatches, contentYears, EVENT_TYPES, EVENT_TYPE_LABELS, MEMBER_GROUPS, STORY_FIELDS } from '../content/contentUtils'
 import { contentFormValues, contentPayload, validateContentForm } from '../content/contentForms'
 import '../admin.css'
 
@@ -89,6 +89,7 @@ function ContentEditor({ collection, item, busy, onSave, onCancel }) {
             {field('title', 'Title', { required: true, maxLength: 160, wide: true, hint: 'The title determines the public event URL. Changing it changes that URL.' })}
             {field('date', 'Display date', { required: true, maxLength: 100, placeholder: 'February 21st, 2026' })}
             {field('year', 'Archive year', { type: 'number', required: true, min: 1900, max: 2200, step: 1 })}
+            <div className="admin-field"><label htmlFor="content-type">Type *</label><select id="content-type" name="type" value={values.type} onChange={(event) => change('type', event.target.value)} aria-invalid={Boolean(errors.type)} aria-describedby={errors.type ? 'content-type-error' : undefined} required>{EVENT_TYPES.map((type) => <option key={type} value={type}>{EVENT_TYPE_LABELS[type]}</option>)}</select>{errors.type && <span className="admin-field__error" id="content-type-error">{errors.type}</span>}</div>
             {field('category', 'Category', { maxLength: 100 })}
             {field('venue', 'Venue', { maxLength: 200 })}
             {field('shortDescription', 'Short description', { multiline: true, maxLength: 600, wide: true })}
@@ -220,7 +221,7 @@ function Admin() {
     {panel === 'content' && <>
     <div className="admin-toolbar">
       <div className="admin-tabs" role="group" aria-label="Content collection">{['events', 'members'].map((name) => <button type="button" key={name} aria-pressed={collection === name} className={collection === name ? 'is-selected' : ''} disabled={busy || Boolean(editor)} onClick={() => switchCollection(name)}>{name === 'events' ? 'Events' : 'Team & volunteers'} <span>{content[name].length}</span></button>)}</div>
-      <div className="admin-toolbar__actions"><button className="admin-button" type="button" disabled={disabled || Boolean(editor)} onClick={load}><RefreshCw size={16} aria-hidden="true" /> Reload</button><button className={`admin-button ${member ? '' : 'admin-button--primary'}`} type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => openEditor()}><Plus size={17} aria-hidden="true" /> Add {member ? 'member' : 'event'}</button>{member && <button className="admin-button admin-button--primary" type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => { setEditor({ bulk: true }); setActionError(''); setNotice('') }}><Users size={17} aria-hidden="true" /> Add users</button>}</div>
+       <div className="admin-toolbar__actions"><button className="admin-button" type="button" disabled={disabled || Boolean(editor)} onClick={load}><RefreshCw size={16} aria-hidden="true" /> Reload</button><button className={`admin-button ${member ? '' : 'admin-button--primary'}`} type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => openEditor()}><Plus size={17} aria-hidden="true" /> {member ? 'Create user' : 'Add event'}</button>{member && <button className="admin-button admin-button--primary" type="button" disabled={disabled || Boolean(editor) || Boolean(loadError)} onClick={() => { setEditor({ bulk: true }); setActionError(''); setNotice('') }}><Users size={17} aria-hidden="true" /> Add user</button>}</div>
     </div>
     {loading && <p className="admin-alert" role="status">Loading content…</p>}
     {loadError && <div className="admin-alert admin-alert--error" role="alert"><p>{loadError}</p><button className="admin-button" type="button" disabled={disabled} onClick={load}>Try again</button></div>}

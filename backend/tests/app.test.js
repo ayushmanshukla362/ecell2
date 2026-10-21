@@ -4,7 +4,7 @@ import { openStore } from '../store.js'
 import { loadConfig } from '../config.js'
 import { setup, password } from './helpers.js'
 
-const event = { title: 'Founders Day', date: 'March 8, 2027', year: 2027, category: 'Workshop', featured: true, order: 0, image: 'https://example.com/event.jpg', descriptionSections: { about: 'A gathering of student founders.' } }
+const event = { title: 'Founders Day', date: 'March 8, 2027', year: 2027, category: 'Workshop', type: 'session', featured: true, order: 0, image: 'https://example.com/event.jpg', descriptionSections: { about: 'A gathering of student founders.' } }
 const member = { name: 'Student Founder', role: 'President', batch: '2027-2028', group: 'executives', featured: true, order: 0 }
 
 test('configuration fails closed and production requires HTTPS and a real secret', () => {
@@ -109,7 +109,9 @@ test('origin, JSON content type and session-bound CSRF are enforced', async (t) 
   assert.equal((await f.request('/api/admin/events', { cookie: admin.cookie, method: 'POST', body: event })).status, 403)
   assert.equal((await f.request('/api/admin/events', { ...admin, csrf: 'made-up', method: 'POST', body: event })).status, 403)
   assert.equal((await f.request('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'text/plain' } })).status, 415)
-  assert.equal((await f.request('/api/admin/events', { ...admin, method: 'POST', body: event })).status, 201)
+   const created = await f.request('/api/admin/events', { ...admin, method: 'POST', body: event })
+   assert.equal(created.status, 201)
+   assert.equal(created.body.item.type, 'session')
 })
 
 test('year/batch CRUD and homepage feature flags persist, with no reseeding deleted data', async (t) => {
@@ -140,7 +142,7 @@ test('year/batch CRUD and homepage feature flags persist, with no reseeding dele
 test('content rejects unsafe URLs, invalid batches, fields and duplicate event links', async (t) => {
   const f = await setup(t)
   const admin = await f.account()
-  for (const patch of [{ image: 'javascript:alert(1)' }, { image: '//evil.example/image.jpg' }, { image: '/\\evil.example' }, { registrationUrl: 'http://insecure.example' }, { year: '2027' }, { featured: 'true' }, { title: '' }, { order: -1 }, { descriptionSections: [] }, { speakers: 'not a list' }]) {
+  for (const patch of [{ image: 'javascript:alert(1)' }, { image: '//evil.example/image.jpg' }, { image: '/\\evil.example' }, { registrationUrl: 'http://insecure.example' }, { year: '2027' }, { type: 'webinar' }, { featured: 'true' }, { title: '' }, { order: -1 }, { descriptionSections: [] }, { speakers: 'not a list' }]) {
     assert.equal((await f.request('/api/admin/events', { ...admin, method: 'POST', body: { ...event, ...patch } })).status, 400, JSON.stringify(patch))
   }
   assert.equal((await f.request('/api/admin/events', { ...admin, method: 'POST', body: event })).status, 201)

@@ -1,4 +1,4 @@
-import { MEMBER_GROUPS, STORY_FIELDS } from './contentUtils.js'
+import { EVENT_TYPES, MEMBER_GROUPS, STORY_FIELDS } from './contentUtils.js'
 
 const lines = (value) => value.split('\n').map((line) => line.trim()).filter(Boolean)
 const text = (value) => String(value ?? '').trim()
@@ -11,6 +11,7 @@ export function contentFormValues(collection, item = {}) {
   }
   return {
     title: '', date: '', year: currentYear, category: '', shortDescription: '', venue: '', registrationUrl: '', listingImage: '', ...common,
+    type: item.type ?? 'event',
     speakers: (item.speakers || []).join('\n'), highlights: (item.highlights || []).join('\n'), images: (item.images || []).join('\n'),
     ...Object.fromEntries(STORY_FIELDS.map((field) => [field, item.descriptionSections?.[field] || ''])),
   }
@@ -41,6 +42,7 @@ export function validateContentForm(collection, values) {
   for (const field of member ? ['name', 'batch'] : ['title', 'date', 'year']) {
     if (!text(values[field])) errors[field] = 'This field is required.'
   }
+  if (!member && !EVENT_TYPES.includes(text(values.type))) errors.type = 'Choose Event or Session.'
   for (const [field, min, max] of member ? [['order', 0, 10000]] : [['order', 0, 10000], ['year', 1900, 2200]]) {
     const value = Number(values[field])
     if (!text(values[field]) || !Number.isInteger(value) || value < min || value > max) errors[field] = `Enter a whole number from ${min} to ${max}.`
@@ -65,6 +67,7 @@ export function contentPayload(collection, values) {
   }
   return {
     ...Object.fromEntries(['title', 'date', 'category', 'shortDescription', 'venue', 'registrationUrl', 'listingImage'].map((field) => [field, text(values[field])])),
+    type: text(values.type) || 'event',
     ...common, year: Number(values.year), speakers: lines(values.speakers), highlights: lines(values.highlights), images: lines(values.images),
     descriptionSections: Object.fromEntries(STORY_FIELDS.map((field) => [field, text(values[field])])),
   }

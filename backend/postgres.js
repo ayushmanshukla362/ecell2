@@ -59,6 +59,8 @@ export const POSTGRES_SCHEMA = [
   )`,
 ]
 
+const POSTGRES_SCHEMA_SQL = POSTGRES_SCHEMA.join(';\n')
+
 const statementResult = (result, method) => {
   if (method === 'get') return result.rows[0]
   if (method === 'all') return result.rows
@@ -127,17 +129,21 @@ export async function migratePostgres(store, seedFile = seedUrl) {
   // Serialize DDL too: CREATE TABLE IF NOT EXISTS alone is not concurrency-safe
   // on simultaneous fresh PostgreSQL cold starts.
   await store.transaction(async () => {
-    for (const statement of POSTGRES_SCHEMA) await store.exec(statement)
+    await store.exec(POSTGRES_SCHEMA_SQL)
     const claimed = await store.prepare(`INSERT INTO metadata(key,value) VALUES('content_seeded','1')
       ON CONFLICT(key) DO NOTHING RETURNING key`).get()
     if (claimed) {
       let seed
       try { seed = await readSeed(seedFile) }
       catch (error) { throw new Error('Missing backend/seed-content.json. Run npm run content:export first.', { cause: error }) }
-      const insert = store.prepare('INSERT INTO content(kind,id,slug,data) VALUES(?,?,?,?)')
+      const rows = []
       for (const kind of ['events', 'members']) for (const item of seed[kind] || []) {
         const value = { ...item, id: String(item.id) }
-        await insert.run(kind, value.id, kind === 'events' ? seedSlug(value.title) : null, JSON.stringify(value))
+        rows.push([kind, value.id, kind === 'events' ? seedSlug(value.title) : null, JSON.stringify(value)])
+      }
+      if (rows.length) {
+        const values = rows.map(() => '(?,?,?,?)').join(',')
+        await store.prepare(`INSERT INTO content(kind,id,slug,data) VALUES${values}`).run(...rows.flat())
       }
     }
   })

@@ -7,7 +7,7 @@ import ContentImage from '../../content/ContentImage'
 import { compareContent } from '../../content/contentUtils'
 
 function TeamPreviewSection() {
-  const { members, loading, error, retry } = useContent()
+  const { members, loading, refreshing, error, retry } = useContent()
   const team = members.filter((member) => member.featured).sort(compareContent)
   const lead = team[0]
   const supportingMembers = team.slice(1)
@@ -27,7 +27,7 @@ function TeamPreviewSection() {
         </Reveal>
       </div>
 
-      <ContentStatus loading={loading} error={error} retry={retry} empty={!team.length} emptyMessage="No featured team members right now. Meet the full team in our roster." />
+      <ContentStatus loading={loading} refreshing={refreshing} error={error} retry={retry} empty={!team.length} emptyMessage="No featured team members right now. Meet the full team in our roster." />
       {lead && <div className="team-preview__layout">
         <Reveal className="team-lead">
           <div className="team-portrait team-portrait--lead">

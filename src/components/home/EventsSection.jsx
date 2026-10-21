@@ -5,7 +5,7 @@ import Reveal from '../Reveal'
 import { useContent } from '../../content/ContentContext'
 import ContentStatus from '../../content/ContentStatus'
 import ContentImage from '../../content/ContentImage'
-import { compareContent } from '../../content/contentUtils'
+import { compareContent, eventTypeLabel } from '../../content/contentUtils'
 
 /* eslint-disable react/prop-types */
 
@@ -20,7 +20,7 @@ function EventRow({ event, index }) {
           <ContentImage src={image} alt={`${event.title} event`} width="900" height="506" loading="lazy" />
         </div>
         <div className="event-row__content">
-          <div className="event-row__meta"><span>{event.category}</span><span>{event.year}</span></div>
+          <div className="event-row__meta"><span>{eventTypeLabel(event.type)}</span><span>{event.category}</span><span>{event.year}</span></div>
           <h3>{event.title}</h3>
           <p>{event.shortDescription}</p>
         </div>
@@ -31,7 +31,7 @@ function EventRow({ event, index }) {
 }
 
 function EventsSection() {
-  const { events, loading, error, retry } = useContent()
+  const { events, loading, refreshing, error, retry } = useContent()
   const featuredEvents = events.filter((event) => event.featured).sort(compareContent)
 
   return (
@@ -49,7 +49,7 @@ function EventsSection() {
         </Reveal>
       </div>
 
-      <ContentStatus loading={loading} error={error} retry={retry} empty={!featuredEvents.length} emptyMessage="No featured events right now. Explore the full archive." />
+      <ContentStatus loading={loading} refreshing={refreshing} error={error} retry={retry} empty={!featuredEvents.length} emptyMessage="No featured events right now. Explore the full archive." />
       <div className="events-list">
         {featuredEvents.map((event, index) => <EventRow key={event.id} event={event} index={index} />)}
       </div>
