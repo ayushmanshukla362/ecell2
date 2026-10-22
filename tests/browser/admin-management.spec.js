@@ -157,6 +157,7 @@ test('owners upload and reuse public images, protect referenced files, and manag
     const content = await (await request.get('/api/content')).json()
     expect(content.members.find((item) => item.name === memberName).image).toBe(portrait.url)
     await page.goto('/teams')
+    await page.getByRole('button', { name: '2031-2032', exact: true }).click()
     await expect(page.getByRole('heading', { name: memberName, exact: true })).toBeVisible()
     await expect(page.locator(`img[src="${portrait.url}"]`)).toBeVisible()
     await page.goto('/admin')
